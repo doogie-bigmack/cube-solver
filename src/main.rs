@@ -58,7 +58,12 @@ fn App() -> Element {
                         style: "color: #2d3748; font-size: 1.5rem; margin-bottom: 1rem; text-align: center;",
                         "3D Cube View"
                     }
+                    p {
+                        style: "color: #718096; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;",
+                        "Changes in the 2D view are reflected in real-time"
+                    }
                     Cube3D {
+                        cube: cube(),
                         viewport_width: viewport_width(),
                         viewport_height: viewport_height(),
                     }
@@ -148,6 +153,10 @@ fn App() -> Element {
                     p {
                         style: "color: #10b981; font-size: 0.9rem; margin: 0.5rem 0; font-weight: bold;",
                         "✓ Color picker palette (R3.3) complete"
+                    }
+                    p {
+                        style: "color: #10b981; font-size: 0.9rem; margin: 0.5rem 0; font-weight: bold;",
+                        "✓ Real-time 2D/3D sync (R3.4) complete"
                     }
                 }
             }
