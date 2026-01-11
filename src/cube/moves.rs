@@ -1,11 +1,12 @@
 //! Face rotation operations for Rubik's cube
 //!
-//! This module implements R1.2 and R1.3 from the PRD:
+//! This module implements R1.2, R1.3, and R1.4 from the PRD:
 //! - All 6 face rotations work correctly (R, L, U, D, F, B)
 //! - Clockwise, counter-clockwise, and double moves
 //! - Adjacent face edges update correctly
 //! - Works for any cube size (2x2 to 20x20)
 //! - Wide moves (Rw, Lw, Uw, Dw, Fw, Bw) rotate multiple layers
+//! - Slice moves (M, E, S) for odd-sized cubes only
 
 use super::state::{Color, Cube};
 use serde::{Deserialize, Serialize};
@@ -49,6 +50,24 @@ pub enum Move {
     BPrime,
     /// Back face 180 degrees
     B2,
+    /// M slice (middle between L and R, turns like L)
+    M,
+    /// M slice counter-clockwise
+    MPrime,
+    /// M slice 180 degrees
+    M2,
+    /// E slice (equator between U and D, turns like D)
+    E,
+    /// E slice counter-clockwise
+    EPrime,
+    /// E slice 180 degrees
+    E2,
+    /// S slice (standing between F and B, turns like F)
+    S,
+    /// S slice counter-clockwise
+    SPrime,
+    /// S slice 180 degrees
+    S2,
 }
 
 impl Move {
@@ -73,6 +92,15 @@ impl Move {
             Move::B => Move::BPrime,
             Move::BPrime => Move::B,
             Move::B2 => Move::B2,
+            Move::M => Move::MPrime,
+            Move::MPrime => Move::M,
+            Move::M2 => Move::M2,
+            Move::E => Move::EPrime,
+            Move::EPrime => Move::E,
+            Move::E2 => Move::E2,
+            Move::S => Move::SPrime,
+            Move::SPrime => Move::S,
+            Move::S2 => Move::S2,
         }
     }
 
@@ -97,6 +125,15 @@ impl Move {
             Move::B => "B",
             Move::BPrime => "B'",
             Move::B2 => "B2",
+            Move::M => "M",
+            Move::MPrime => "M'",
+            Move::M2 => "M2",
+            Move::E => "E",
+            Move::EPrime => "E'",
+            Move::E2 => "E2",
+            Move::S => "S",
+            Move::SPrime => "S'",
+            Move::S2 => "S2",
         }
     }
 }
@@ -313,6 +350,24 @@ impl Cube {
             Move::B2 => {
                 self.move_b();
                 self.move_b();
+            }
+            Move::M => self.move_m(),
+            Move::MPrime => self.move_m_prime(),
+            Move::M2 => {
+                self.move_m();
+                self.move_m();
+            }
+            Move::E => self.move_e(),
+            Move::EPrime => self.move_e_prime(),
+            Move::E2 => {
+                self.move_e();
+                self.move_e();
+            }
+            Move::S => self.move_s(),
+            Move::SPrime => self.move_s_prime(),
+            Move::S2 => {
+                self.move_s();
+                self.move_s();
             }
         }
     }
@@ -968,6 +1023,174 @@ impl Cube {
         self.left.set_col(0, down_row);
         // Left left col -> Up top row (reversed)
         self.up.set_row(0, left_col.into_iter().rev().collect());
+    }
+
+    /// M slice move: Middle slice between L and R (turns like L)
+    /// Only works on odd-sized cubes (3x3, 5x5, 7x7, etc.)
+    ///
+    /// # Panics
+    /// Panics if the cube is even-sized (no middle slice exists)
+    fn move_m(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("M slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // M turns like L, following the same cycle as L
+        // Cycle: Up -> Back (reversed) -> Down -> Front -> Up
+        let up_col = self.up.get_col(mid);
+        let front_col = self.front.get_col(mid);
+        let down_col = self.down.get_col(mid);
+        let back_col: Vec<Color> = self.back.get_col(mid).into_iter().rev().collect();
+
+        // Up middle col -> Back middle col (reversed)
+        self.back.set_col(mid, up_col.into_iter().rev().collect());
+        // Back middle col (reversed) -> Down middle col
+        self.down.set_col(mid, back_col);
+        // Down middle col -> Front middle col
+        self.front.set_col(mid, down_col);
+        // Front middle col -> Up middle col
+        self.up.set_col(mid, front_col);
+    }
+
+    /// M' slice move: Middle slice counter-clockwise
+    fn move_m_prime(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("M slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // M' turns opposite to M, reversing the cycle
+        // Cycle: Up -> Front -> Down -> Back (reversed) -> Up
+        let up_col = self.up.get_col(mid);
+        let front_col = self.front.get_col(mid);
+        let down_col = self.down.get_col(mid);
+        let back_col: Vec<Color> = self.back.get_col(mid).into_iter().rev().collect();
+
+        // Up middle col -> Front middle col
+        self.front.set_col(mid, up_col);
+        // Front middle col -> Down middle col
+        self.down.set_col(mid, front_col);
+        // Down middle col -> Back middle col (reversed)
+        self.back.set_col(mid, down_col.into_iter().rev().collect());
+        // Back middle col (reversed) -> Up middle col
+        self.up.set_col(mid, back_col);
+    }
+
+    /// E slice move: Equator slice between U and D (turns like D)
+    /// Only works on odd-sized cubes (3x3, 5x5, 7x7, etc.)
+    ///
+    /// # Panics
+    /// Panics if the cube is even-sized (no middle slice exists)
+    fn move_e(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("E slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // E turns like D, so it follows the same cycle as D
+        // Cycle: Front middle row -> Right middle row -> Back middle row -> Left middle row -> Front middle row
+        let front_row = self.front.get_row(mid);
+        let right_row = self.right.get_row(mid);
+        let back_row = self.back.get_row(mid);
+        let left_row = self.left.get_row(mid);
+
+        // Front middle row -> Left middle row
+        self.left.set_row(mid, front_row);
+        // Left middle row -> Back middle row
+        self.back.set_row(mid, left_row);
+        // Back middle row -> Right middle row
+        self.right.set_row(mid, back_row);
+        // Right middle row -> Front middle row
+        self.front.set_row(mid, right_row);
+    }
+
+    /// E' slice move: Equator slice counter-clockwise
+    fn move_e_prime(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("E slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // E' turns opposite to D'
+        // Cycle: Front middle row -> Left middle row -> Back middle row -> Right middle row -> Front middle row
+        let front_row = self.front.get_row(mid);
+        let right_row = self.right.get_row(mid);
+        let back_row = self.back.get_row(mid);
+        let left_row = self.left.get_row(mid);
+
+        // Front middle row -> Right middle row
+        self.right.set_row(mid, front_row);
+        // Right middle row -> Back middle row
+        self.back.set_row(mid, right_row);
+        // Back middle row -> Left middle row
+        self.left.set_row(mid, back_row);
+        // Left middle row -> Front middle row
+        self.front.set_row(mid, left_row);
+    }
+
+    /// S slice move: Standing slice between F and B (turns like F)
+    /// Only works on odd-sized cubes (3x3, 5x5, 7x7, etc.)
+    ///
+    /// # Panics
+    /// Panics if the cube is even-sized (no middle slice exists)
+    fn move_s(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("S slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // S turns like F, so it follows the same cycle as F
+        // Cycle: Up middle row -> Right middle col -> Down middle row -> Left middle col -> Up middle row
+        let up_row = self.up.get_row(mid);
+        let right_col = self.right.get_col(mid);
+        let down_row = self.down.get_row(mid);
+        let left_col = self.left.get_col(mid);
+
+        // Up middle row -> Right middle col
+        self.right.set_col(mid, up_row);
+        // Right middle col -> Down middle row (reversed)
+        self.down.set_row(mid, right_col.into_iter().rev().collect());
+        // Down middle row -> Left middle col
+        self.left.set_col(mid, down_row);
+        // Left middle col -> Up middle row (reversed)
+        self.up.set_row(mid, left_col.into_iter().rev().collect());
+    }
+
+    /// S' slice move: Standing slice counter-clockwise
+    fn move_s_prime(&mut self) {
+        let n = self.size();
+        if n % 2 == 0 {
+            panic!("S slice moves only work on odd-sized cubes");
+        }
+
+        let mid = n / 2;
+
+        // S' turns opposite to F'
+        // Cycle: Up middle row -> Left middle col -> Down middle row -> Right middle col -> Up middle row
+        let up_row = self.up.get_row(mid);
+        let right_col = self.right.get_col(mid);
+        let down_row = self.down.get_row(mid);
+        let left_col = self.left.get_col(mid);
+
+        // Up middle row -> Left middle col (reversed)
+        self.left.set_col(mid, up_row.into_iter().rev().collect());
+        // Left middle col -> Down middle row
+        self.down.set_row(mid, left_col);
+        // Down middle row -> Right middle col (reversed)
+        self.right.set_col(mid, down_row.into_iter().rev().collect());
+        // Right middle col -> Up middle row
+        self.up.set_row(mid, right_col);
     }
 }
 
