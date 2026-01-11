@@ -244,7 +244,7 @@ fn calculate_sticker_transform(
     row: usize,
     col: usize,
     n: f32,
-    cube_size: f32,
+    _cube_size: f32,
     sticker_size: f32,
     face_offset: f32,
 ) -> (Vec3, Vec3, Vec3) {
