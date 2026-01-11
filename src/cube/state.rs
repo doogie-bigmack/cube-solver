@@ -313,6 +313,11 @@ impl Cube {
         }
     }
 
+    /// Sets the color of a specific sticker on a face
+    pub fn set_sticker(&mut self, face: FaceName, row: usize, col: usize, color: Color) {
+        self.get_face_mut(face).set(row, col, color);
+    }
+
     /// Checks if the cube is in the solved state
     pub fn is_solved(&self) -> bool {
         self.up.is_solved()
