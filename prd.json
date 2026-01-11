@@ -207,8 +207,8 @@
           "Configurable duration",
           "Queue multiple animations"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/animations.rs"
         ]
@@ -840,8 +840,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 13,
-    "tests_passing": 13,
-    "completion_percentage": 23.21
+    "implemented": 14,
+    "tests_passing": 14,
+    "completion_percentage": 25.00
   }
 }
