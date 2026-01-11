@@ -68,6 +68,24 @@ pub enum Move {
     SPrime,
     /// S slice 180 degrees
     S2,
+    /// X rotation (rotate entire cube on R axis)
+    X,
+    /// X rotation counter-clockwise
+    XPrime,
+    /// X rotation 180 degrees
+    X2,
+    /// Y rotation (rotate entire cube on U axis)
+    Y,
+    /// Y rotation counter-clockwise
+    YPrime,
+    /// Y rotation 180 degrees
+    Y2,
+    /// Z rotation (rotate entire cube on F axis)
+    Z,
+    /// Z rotation counter-clockwise
+    ZPrime,
+    /// Z rotation 180 degrees
+    Z2,
 }
 
 impl Move {
@@ -101,6 +119,15 @@ impl Move {
             Move::S => Move::SPrime,
             Move::SPrime => Move::S,
             Move::S2 => Move::S2,
+            Move::X => Move::XPrime,
+            Move::XPrime => Move::X,
+            Move::X2 => Move::X2,
+            Move::Y => Move::YPrime,
+            Move::YPrime => Move::Y,
+            Move::Y2 => Move::Y2,
+            Move::Z => Move::ZPrime,
+            Move::ZPrime => Move::Z,
+            Move::Z2 => Move::Z2,
         }
     }
 
@@ -134,6 +161,15 @@ impl Move {
             Move::S => "S",
             Move::SPrime => "S'",
             Move::S2 => "S2",
+            Move::X => "x",
+            Move::XPrime => "x'",
+            Move::X2 => "x2",
+            Move::Y => "y",
+            Move::YPrime => "y'",
+            Move::Y2 => "y2",
+            Move::Z => "z",
+            Move::ZPrime => "z'",
+            Move::Z2 => "z2",
         }
     }
 }
@@ -368,6 +404,24 @@ impl Cube {
             Move::S2 => {
                 self.move_s();
                 self.move_s();
+            }
+            Move::X => self.rotate_x(),
+            Move::XPrime => self.rotate_x_prime(),
+            Move::X2 => {
+                self.rotate_x();
+                self.rotate_x();
+            }
+            Move::Y => self.rotate_y(),
+            Move::YPrime => self.rotate_y_prime(),
+            Move::Y2 => {
+                self.rotate_y();
+                self.rotate_y();
+            }
+            Move::Z => self.rotate_z(),
+            Move::ZPrime => self.rotate_z_prime(),
+            Move::Z2 => {
+                self.rotate_z();
+                self.rotate_z();
             }
         }
     }
@@ -1192,6 +1246,141 @@ impl Cube {
         // Right middle col -> Up middle row
         self.up.set_row(mid, right_col);
     }
+
+    /// X rotation: Rotate entire cube on R axis (like doing R M' L')
+    /// This rotates the whole cube as if turning the right face
+    fn rotate_x(&mut self) {
+        // First rotate all the faces that move
+        // Front -> Up -> Back -> Down -> Front
+        let temp_front = self.front.clone();
+        self.front = self.down.clone();
+        self.down = self.back.clone();
+        self.back = self.up.clone();
+        self.up = temp_front;
+
+        // Back and down need to be rotated 180 degrees because they flip
+        self.back.rotate_180();
+        self.down.rotate_180();
+
+        // Right face rotates clockwise
+        self.right.rotate_cw();
+        // Left face rotates counter-clockwise
+        self.left.rotate_ccw();
+    }
+
+    /// X' rotation: Rotate entire cube on R axis counter-clockwise
+    fn rotate_x_prime(&mut self) {
+        // Opposite of rotate_x
+        // Front -> Down -> Back -> Up -> Front
+        let temp_front = self.front.clone();
+        self.front = self.up.clone();
+        self.up = self.back.clone();
+        self.back = self.down.clone();
+        self.down = temp_front;
+
+        // Back and up need to be rotated 180 degrees
+        self.back.rotate_180();
+        self.up.rotate_180();
+
+        // Right face rotates counter-clockwise
+        self.right.rotate_ccw();
+        // Left face rotates clockwise
+        self.left.rotate_cw();
+    }
+
+    /// Y rotation: Rotate entire cube on U axis (like doing U E' D')
+    /// This rotates the whole cube as if turning the up face
+    fn rotate_y(&mut self) {
+        // Front -> Left -> Back -> Right -> Front
+        let temp_front = self.front.clone();
+        self.front = self.right.clone();
+        self.right = self.back.clone();
+        self.back = self.left.clone();
+        self.left = temp_front;
+
+        // Up face rotates clockwise
+        self.up.rotate_cw();
+        // Down face rotates counter-clockwise
+        self.down.rotate_ccw();
+    }
+
+    /// Y' rotation: Rotate entire cube on U axis counter-clockwise
+    fn rotate_y_prime(&mut self) {
+        // Opposite of rotate_y
+        // Front -> Right -> Back -> Left -> Front
+        let temp_front = self.front.clone();
+        self.front = self.left.clone();
+        self.left = self.back.clone();
+        self.back = self.right.clone();
+        self.right = temp_front;
+
+        // Up face rotates counter-clockwise
+        self.up.rotate_ccw();
+        // Down face rotates clockwise
+        self.down.rotate_cw();
+    }
+
+    /// Z rotation: Rotate entire cube on F axis (like doing F S B')
+    /// This rotates the whole cube as if turning the front face
+    fn rotate_z(&mut self) {
+        // Up -> Right -> Down -> Left -> Up (with rotations)
+        let temp_up = self.up.clone();
+        let temp_right = self.right.clone();
+        let temp_down = self.down.clone();
+        let temp_left = self.left.clone();
+
+        // Up -> Right (rotated CW)
+        self.right = temp_up;
+        self.right.rotate_cw();
+
+        // Right -> Down (rotated CW)
+        self.down = temp_right;
+        self.down.rotate_cw();
+
+        // Down -> Left (rotated CW)
+        self.left = temp_down;
+        self.left.rotate_cw();
+
+        // Left -> Up (rotated CW)
+        self.up = temp_left;
+        self.up.rotate_cw();
+
+        // Front face rotates clockwise
+        self.front.rotate_cw();
+        // Back face rotates counter-clockwise
+        self.back.rotate_ccw();
+    }
+
+    /// Z' rotation: Rotate entire cube on F axis counter-clockwise
+    fn rotate_z_prime(&mut self) {
+        // Opposite of rotate_z
+        // Up -> Left -> Down -> Right -> Up (with rotations)
+        let temp_up = self.up.clone();
+        let temp_left = self.left.clone();
+        let temp_down = self.down.clone();
+        let temp_right = self.right.clone();
+
+        // Up -> Left (rotated CCW)
+        self.left = temp_up;
+        self.left.rotate_ccw();
+
+        // Left -> Down (rotated CCW)
+        self.down = temp_left;
+        self.down.rotate_ccw();
+
+        // Down -> Right (rotated CCW)
+        self.right = temp_down;
+        self.right.rotate_ccw();
+
+        // Right -> Up (rotated CCW)
+        self.up = temp_right;
+        self.up.rotate_ccw();
+
+        // Front face rotates counter-clockwise
+        self.front.rotate_ccw();
+        // Back face rotates clockwise
+        self.back.rotate_cw();
+    }
 }
 
 #[cfg(test)]
@@ -1800,5 +1989,208 @@ mod tests {
         cube.apply_wide_move(WideMove::fw());
 
         assert!(cube.has_valid_color_counts());
+    }
+
+    // R1.5 Tests: Cube rotations (x, y, z)
+
+    #[test]
+    fn cube_020_x_rotation() {
+        let mut cube = Cube::new(3);
+        let original = cube.clone();
+
+        cube.apply_move(Move::X);
+
+        // After X rotation, front should become up
+        assert_eq!(cube.up, original.front);
+        // Up should become back (rotated 180)
+        let mut expected_back = original.up.clone();
+        expected_back.rotate_180();
+        assert_eq!(cube.back, expected_back);
+        // Back should become down (rotated 180)
+        let mut expected_down = original.back.clone();
+        expected_down.rotate_180();
+        assert_eq!(cube.down, expected_down);
+        // Down should become front
+        assert_eq!(cube.front, original.down);
+
+        // Right face rotates CW
+        let mut expected_right = original.right.clone();
+        expected_right.rotate_cw();
+        assert_eq!(cube.right, expected_right);
+
+        // Left face rotates CCW
+        let mut expected_left = original.left.clone();
+        expected_left.rotate_ccw();
+        assert_eq!(cube.left, expected_left);
+    }
+
+    #[test]
+    fn cube_021_y_rotation() {
+        let mut cube = Cube::new(3);
+        let original = cube.clone();
+
+        cube.apply_move(Move::Y);
+
+        // After Y rotation, front should become left
+        assert_eq!(cube.left, original.front);
+        // Right should become front
+        assert_eq!(cube.front, original.right);
+        // Back should become right
+        assert_eq!(cube.right, original.back);
+        // Left should become back
+        assert_eq!(cube.back, original.left);
+
+        // Up face rotates CW
+        let mut expected_up = original.up.clone();
+        expected_up.rotate_cw();
+        assert_eq!(cube.up, expected_up);
+
+        // Down face rotates CCW
+        let mut expected_down = original.down.clone();
+        expected_down.rotate_ccw();
+        assert_eq!(cube.down, expected_down);
+    }
+
+    #[test]
+    fn cube_022_z_rotation() {
+        let mut cube = Cube::new(3);
+        let original = cube.clone();
+
+        cube.apply_move(Move::Z);
+
+        // After Z rotation, up should become right (rotated CW)
+        let mut expected_right = original.up.clone();
+        expected_right.rotate_cw();
+        assert_eq!(cube.right, expected_right);
+
+        // Right should become down (rotated CW)
+        let mut expected_down = original.right.clone();
+        expected_down.rotate_cw();
+        assert_eq!(cube.down, expected_down);
+
+        // Down should become left (rotated CW)
+        let mut expected_left = original.down.clone();
+        expected_left.rotate_cw();
+        assert_eq!(cube.left, expected_left);
+
+        // Left should become up (rotated CW)
+        let mut expected_up = original.left.clone();
+        expected_up.rotate_cw();
+        assert_eq!(cube.up, expected_up);
+
+        // Front face rotates CW
+        let mut expected_front = original.front.clone();
+        expected_front.rotate_cw();
+        assert_eq!(cube.front, expected_front);
+
+        // Back face rotates CCW
+        let mut expected_back = original.back.clone();
+        expected_back.rotate_ccw();
+        assert_eq!(cube.back, expected_back);
+    }
+
+    #[test]
+    fn test_x_inverse_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::X);
+        cube.apply_move(Move::XPrime);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_y_inverse_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::Y);
+        cube.apply_move(Move::YPrime);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_z_inverse_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::Z);
+        cube.apply_move(Move::ZPrime);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_x2_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::X2);
+        cube.apply_move(Move::X2);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_y2_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::Y2);
+        cube.apply_move(Move::Y2);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_z2_returns_to_solved() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::Z2);
+        cube.apply_move(Move::Z2);
+        assert!(cube.is_solved());
+    }
+
+    #[test]
+    fn test_rotation_notation() {
+        assert_eq!(Move::X.to_notation(), "x");
+        assert_eq!(Move::XPrime.to_notation(), "x'");
+        assert_eq!(Move::X2.to_notation(), "x2");
+        assert_eq!(Move::Y.to_notation(), "y");
+        assert_eq!(Move::YPrime.to_notation(), "y'");
+        assert_eq!(Move::Y2.to_notation(), "y2");
+        assert_eq!(Move::Z.to_notation(), "z");
+        assert_eq!(Move::ZPrime.to_notation(), "z'");
+        assert_eq!(Move::Z2.to_notation(), "z2");
+    }
+
+    #[test]
+    fn test_rotation_inverse() {
+        assert_eq!(Move::X.inverse(), Move::XPrime);
+        assert_eq!(Move::XPrime.inverse(), Move::X);
+        assert_eq!(Move::X2.inverse(), Move::X2);
+        assert_eq!(Move::Y.inverse(), Move::YPrime);
+        assert_eq!(Move::YPrime.inverse(), Move::Y);
+        assert_eq!(Move::Y2.inverse(), Move::Y2);
+        assert_eq!(Move::Z.inverse(), Move::ZPrime);
+        assert_eq!(Move::ZPrime.inverse(), Move::Z);
+        assert_eq!(Move::Z2.inverse(), Move::Z2);
+    }
+
+    #[test]
+    fn test_rotations_preserve_color_counts() {
+        let mut cube = Cube::new(3);
+        cube.apply_move(Move::X);
+        assert!(cube.has_valid_color_counts());
+
+        cube.apply_move(Move::Y);
+        assert!(cube.has_valid_color_counts());
+
+        cube.apply_move(Move::Z);
+        assert!(cube.has_valid_color_counts());
+    }
+
+    #[test]
+    fn test_rotations_on_various_sizes() {
+        for size in [2, 3, 4, 5, 7, 10] {
+            let mut cube = Cube::new(size);
+            cube.apply_move(Move::X);
+            cube.apply_move(Move::XPrime);
+            assert!(cube.is_solved(), "Size {} failed X rotation test", size);
+
+            cube.apply_move(Move::Y);
+            cube.apply_move(Move::YPrime);
+            assert!(cube.is_solved(), "Size {} failed Y rotation test", size);
+
+            cube.apply_move(Move::Z);
+            cube.apply_move(Move::ZPrime);
+            assert!(cube.is_solved(), "Size {} failed Z rotation test", size);
+        }
     }
 }
