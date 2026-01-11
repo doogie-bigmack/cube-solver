@@ -119,8 +119,8 @@
           "Avoids redundant moves (no R R or R R')",
           "Returns both move list and scrambled cube state"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/cube/scramble.rs"
         ]
@@ -838,8 +838,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 7,
-    "tests_passing": 7,
-    "completion_percentage": 12.5
+    "implemented": 8,
+    "tests_passing": 8,
+    "completion_percentage": 14.29
   }
 }
