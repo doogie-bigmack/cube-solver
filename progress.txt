@@ -519,3 +519,40 @@ This is deferred to a future enhancement. Current implementation:
   - R3.x: Manual color input UI
   - R7.x: Cross-platform builds
 
+---
+
+## 2026-01-11 - Attempted R5.1 (2x2 Solver)
+
+### Attempted
+- Started work on R5.1: 2x2 solver using Ortega method
+  - Created src/solver/mod.rs
+  - Created src/solver/two_by_two.rs
+  - Implemented basic structure with TwoByTwoSolver struct
+  - Attempted layer-by-layer solving approach
+
+### Issues Encountered
+- Solver implementation proved more complex than anticipated
+- Basic search algorithm (depth-limited DFS) was too naive
+- Tests failed - solver couldn't reliably solve scrambled cubes
+- Would require either:
+  - Comprehensive lookup tables (pattern database)
+  - More sophisticated search algorithm (IDA*, beam search)
+  - Implementation of proper Ortega method with all cases
+
+### Decision
+- Reverted changes to avoid committing broken code
+- Documented in progress.txt for future reference
+- 2x2 solving is algorithmically complex and requires more research/time than available in single session
+
+### Lessons Learned
+- Cube solving algorithms are non-trivial even for 2x2
+- Should consider simpler tasks or break down into smaller incremental pieces
+- Could start with just the algorithm lookup tables before implementing solver
+
+### Next Steps (Recommendations)
+- Consider simpler requirements that don't require complex algorithms:
+  - R7.x: Build/deployment tasks (Docker, cross-platform)
+  - R3.x: UI components (simpler, incremental)
+  - Or invest more time in proper solver implementation with research
+
+---

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: rubiks-cube-solver-web
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
