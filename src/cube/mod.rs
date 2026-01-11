@@ -12,4 +12,4 @@ pub mod moves;
 
 // Re-export main types
 pub use state::{Color, Cube, Face, FaceName};
-pub use moves::Move;
+pub use moves::{Move, WideMove, WideFace, Direction};
