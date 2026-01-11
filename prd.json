@@ -1,0 +1,845 @@
+{
+  "project": {
+    "name": "Rubik's Cube Solver & Tutorial",
+    "description": "Educational Rubik's cube solver app for kids supporting 2x2 to 20x20 cubes",
+    "framework": "Dioxus (Rust)",
+    "platforms": [
+      "web",
+      "macos",
+      "windows",
+      "linux",
+      "android",
+      "ios"
+    ],
+    "version": "0.1.0"
+  },
+  "requirements": {
+    "R1_core_cube_engine": {
+      "R1.1": {
+        "description": "NxN cube state representation (2x2 to 20x20)",
+        "acceptance_criteria": [
+          "Cube struct supports any size from 2 to 20",
+          "Each face stores NxN grid of colors",
+          "Colors enum: White, Yellow, Red, Orange, Blue, Green",
+          "New cube initializes to solved state"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/state.rs"
+        ]
+      },
+      "R1.2": {
+        "description": "Face rotation operations (R, L, U, D, F, B)",
+        "acceptance_criteria": [
+          "All 6 face rotations work correctly",
+          "Clockwise, counter-clockwise, and double moves",
+          "Adjacent face edges update correctly",
+          "Works for any cube size"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/moves.rs"
+        ]
+      },
+      "R1.3": {
+        "description": "Wide moves support (Rw, Lw, Uw, Dw, Fw, Bw)",
+        "acceptance_criteria": [
+          "Wide moves rotate multiple layers",
+          "Depth parameter controls how many layers",
+          "Works for cubes 3x3 and larger"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/moves.rs"
+        ]
+      },
+      "R1.4": {
+        "description": "Slice moves (M, E, S)",
+        "acceptance_criteria": [
+          "M slice (between L and R) rotates correctly",
+          "E slice (between U and D) rotates correctly",
+          "S slice (between F and B) rotates correctly",
+          "Works for odd-sized cubes only"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/moves.rs"
+        ]
+      },
+      "R1.5": {
+        "description": "Cube rotations (x, y, z)",
+        "acceptance_criteria": [
+          "x rotation rotates entire cube on R axis",
+          "y rotation rotates entire cube on U axis",
+          "z rotation rotates entire cube on F axis"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/moves.rs"
+        ]
+      },
+      "R1.6": {
+        "description": "Move notation parser",
+        "acceptance_criteria": [
+          "Parses standard notation (R, R', R2, Rw, Rw2, etc.)",
+          "Parses algorithm strings (R U R' U')",
+          "Returns Vec<Move> from string input",
+          "Handles invalid notation gracefully"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/notation.rs"
+        ]
+      },
+      "R1.7": {
+        "description": "Cube state validation (solvability check)",
+        "acceptance_criteria": [
+          "Validates correct color counts (9 of each for 3x3)",
+          "Checks edge parity",
+          "Checks corner parity",
+          "Checks permutation parity",
+          "Returns detailed error for invalid states"
+        ],
+        "implemented": true,
+        "tests_passing": true,
+        "files": [
+          "src/cube/validation.rs"
+        ]
+      },
+      "R1.8": {
+        "description": "Scramble generator",
+        "acceptance_criteria": [
+          "Generates random scramble of configurable length",
+          "Avoids redundant moves (no R R or R R')",
+          "Returns both move list and scrambled cube state"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/cube/scramble.rs"
+        ]
+      },
+      "R1.9": {
+        "description": "State serialization (save/load)",
+        "acceptance_criteria": [
+          "Serialize cube state to JSON",
+          "Deserialize JSON to cube state",
+          "Handle version compatibility"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/cube/state.rs"
+        ]
+      }
+    },
+    "R2_3d_visualization": {
+      "R2.1": {
+        "description": "WGPU rendering context setup",
+        "acceptance_criteria": [
+          "Initialize WGPU surface, device, queue",
+          "Integrate with Dioxus component lifecycle",
+          "Handle resize events",
+          "Works on web (WebGPU) and native"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/wgpu_context.rs"
+        ]
+      },
+      "R2.2": {
+        "description": "Cube mesh generation for any NxN",
+        "acceptance_criteria": [
+          "Generate vertices for NxN cube",
+          "Generate indices for triangles",
+          "Include UV coordinates for stickers",
+          "Proper normals for lighting",
+          "Gap between stickers"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/cube_mesh.rs"
+        ]
+      },
+      "R2.3": {
+        "description": "Camera orbit controls (mouse/touch drag)",
+        "acceptance_criteria": [
+          "Drag to rotate camera around cube",
+          "Smooth interpolation",
+          "Constrain to reasonable angles",
+          "Touch support for mobile"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/camera.rs"
+        ]
+      },
+      "R2.4": {
+        "description": "Camera zoom controls",
+        "acceptance_criteria": [
+          "Scroll wheel to zoom in/out",
+          "Pinch to zoom on mobile",
+          "Min/max zoom limits",
+          "Smooth zoom animation"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/camera.rs"
+        ]
+      },
+      "R2.5": {
+        "description": "Smooth face rotation animations",
+        "acceptance_criteria": [
+          "Animate face rotating 90/180 degrees",
+          "Easing function for smooth motion",
+          "Configurable duration",
+          "Queue multiple animations"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/animations.rs"
+        ]
+      },
+      "R2.6": {
+        "description": "Color-coded stickers with proper spacing",
+        "acceptance_criteria": [
+          "6 distinct colors matching standard cube",
+          "Rounded corners on stickers",
+          "Consistent gap between stickers",
+          "Black cube body visible between stickers"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/cube_mesh.rs"
+        ]
+      },
+      "R2.7": {
+        "description": "Highlight active face/piece",
+        "acceptance_criteria": [
+          "Visual highlight on hover",
+          "Highlight pieces being affected by current tutorial step",
+          "Configurable highlight color"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/renderer/highlight.rs"
+        ]
+      },
+      "R2.8": {
+        "description": "Responsive sizing for different screens",
+        "acceptance_criteria": [
+          "Cube fills available space appropriately",
+          "Maintains aspect ratio",
+          "Works on mobile screens",
+          "Works on large desktop screens"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/cube_3d.rs"
+        ]
+      }
+    },
+    "R3_manual_color_input": {
+      "R3.1": {
+        "description": "2D unfolded cube view",
+        "acceptance_criteria": [
+          "Display cube as unfolded cross pattern",
+          "Show all 6 faces",
+          "Clear face labels (U, D, L, R, F, B)",
+          "Scale appropriately for cube size"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/cube_input.rs"
+        ]
+      },
+      "R3.2": {
+        "description": "Click/tap to select sticker",
+        "acceptance_criteria": [
+          "Click any sticker to select it",
+          "Visual selection indicator",
+          "Touch support for mobile"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/cube_input.rs"
+        ]
+      },
+      "R3.3": {
+        "description": "Color picker palette (6 colors)",
+        "acceptance_criteria": [
+          "Display 6 color buttons",
+          "Click color to apply to selected sticker",
+          "Show currently selected color"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/color_picker.rs"
+        ]
+      },
+      "R3.4": {
+        "description": "Real-time sync with 3D view",
+        "acceptance_criteria": [
+          "2D changes immediately reflect in 3D",
+          "3D changes immediately reflect in 2D",
+          "No lag or desync"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/cube_input.rs",
+          "src/components/cube_3d.rs"
+        ]
+      },
+      "R3.5": {
+        "description": "Validation feedback (invalid states)",
+        "acceptance_criteria": [
+          "Show warning for wrong color counts",
+          "Show error for unsolvable states",
+          "Clear error messages"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/validation_feedback.rs"
+        ]
+      },
+      "R3.6": {
+        "description": "Reset to solved state",
+        "acceptance_criteria": [
+          "Button to reset cube to solved",
+          "Confirmation dialog",
+          "Works for any size"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/cube_controls.rs"
+        ]
+      },
+      "R3.7": {
+        "description": "Undo/redo color changes",
+        "acceptance_criteria": [
+          "Undo last color change",
+          "Redo undone change",
+          "Undo/redo history stack"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/state/history.rs"
+        ]
+      }
+    },
+    "R4_camera_scanning": {
+      "R4.1": {
+        "description": "Webcam access via Nokhwa",
+        "acceptance_criteria": [
+          "Request camera permission",
+          "Display live camera feed",
+          "Handle permission denied gracefully",
+          "Works on web, desktop, and mobile"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/camera/capture.rs"
+        ]
+      },
+      "R4.2": {
+        "description": "Face alignment guide overlay",
+        "acceptance_criteria": [
+          "Show 3x3 grid overlay (or NxN)",
+          "Guide user to align cube face",
+          "Clear visual indicators"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/camera_scanner.rs"
+        ]
+      },
+      "R4.3": {
+        "description": "HSV color detection algorithm",
+        "acceptance_criteria": [
+          "Convert RGB to HSV",
+          "Classify pixels into 6 colors",
+          "Handle color variations",
+          "90%+ accuracy in good lighting"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/camera/color_detect.rs"
+        ]
+      },
+      "R4.4": {
+        "description": "Color calibration mode",
+        "acceptance_criteria": [
+          "Let user show each color to camera",
+          "Learn color ranges from samples",
+          "Save calibration settings",
+          "Improve detection accuracy"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/camera/calibration.rs"
+        ]
+      },
+      "R4.5": {
+        "description": "Scan all 6 faces workflow",
+        "acceptance_criteria": [
+          "Guide user through scanning each face",
+          "Show which faces are scanned",
+          "Allow re-scanning individual faces",
+          "Combine into complete cube state"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/scan_workflow.rs"
+        ]
+      },
+      "R4.6": {
+        "description": "Handle lighting variations",
+        "acceptance_criteria": [
+          "Work in various lighting conditions",
+          "Detect and warn about poor lighting",
+          "Adaptive thresholds"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/camera/color_detect.rs"
+        ]
+      },
+      "R4.7": {
+        "description": "Error recovery for failed scans",
+        "acceptance_criteria": [
+          "Detect uncertain colors",
+          "Allow manual correction",
+          "Retry scan option"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/scan_correction.rs"
+        ]
+      }
+    },
+    "R5_solving_algorithms": {
+      "R5.1": {
+        "description": "2x2 solver (Ortega or optimal)",
+        "acceptance_criteria": [
+          "Solve any valid 2x2 cube",
+          "Generate efficient solution",
+          "Complete in under 1 second"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/two_by_two.rs"
+        ]
+      },
+      "R5.2": {
+        "description": "3x3 Kociemba solver (<=20 moves)",
+        "acceptance_criteria": [
+          "Solve any valid 3x3 cube",
+          "Solution length <=20 moves (God's number)",
+          "Complete in under 2 seconds"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/kociemba.rs"
+        ]
+      },
+      "R5.3": {
+        "description": "4x4+ reduction method - centers",
+        "acceptance_criteria": [
+          "Solve center pieces first",
+          "Works for 4x4 and larger",
+          "Generate move sequence"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/reduction.rs"
+        ]
+      },
+      "R5.4": {
+        "description": "4x4+ reduction method - edges",
+        "acceptance_criteria": [
+          "Pair edge pieces",
+          "Works for 4x4 and larger",
+          "Generate move sequence"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/reduction.rs"
+        ]
+      },
+      "R5.5": {
+        "description": "4x4+ parity handling",
+        "acceptance_criteria": [
+          "Detect OLL parity",
+          "Detect PLL parity",
+          "Apply correct parity algorithms"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/parity.rs"
+        ]
+      },
+      "R5.6": {
+        "description": "Step-by-step solution generation",
+        "acceptance_criteria": [
+          "Break solution into logical steps",
+          "Each step has description",
+          "Steps correspond to solving phases"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/solver/solution.rs"
+        ]
+      },
+      "R5.7": {
+        "description": "Solution animation playback",
+        "acceptance_criteria": [
+          "Play through solution automatically",
+          "Configurable speed",
+          "Smooth animations between moves"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/solution_player.rs"
+        ]
+      },
+      "R5.8": {
+        "description": "Pause/resume/step controls",
+        "acceptance_criteria": [
+          "Pause playback",
+          "Resume from pause",
+          "Step forward one move",
+          "Step backward one move"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/playback_controls.rs"
+        ]
+      },
+      "R5.9": {
+        "description": "Move explanation text",
+        "acceptance_criteria": [
+          "Display current move in notation",
+          "Kid-friendly explanation",
+          "Highlight affected pieces"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/move_display.rs"
+        ]
+      }
+    },
+    "R6_tutorial_system": {
+      "R6.1": {
+        "description": "Beginner lesson: cube notation",
+        "acceptance_criteria": [
+          "Explain R, L, U, D, F, B",
+          "Explain prime and double moves",
+          "Interactive examples"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/notation.rs"
+        ]
+      },
+      "R6.2": {
+        "description": "Beginner lesson: face colors",
+        "acceptance_criteria": [
+          "Explain standard color scheme",
+          "Show opposite colors",
+          "Interactive quiz"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/colors.rs"
+        ]
+      },
+      "R6.3": {
+        "description": "3x3 tutorial: cross",
+        "acceptance_criteria": [
+          "Step-by-step cross solving",
+          "Multiple algorithms for different cases",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/cross.rs"
+        ]
+      },
+      "R6.4": {
+        "description": "3x3 tutorial: first layer corners",
+        "acceptance_criteria": [
+          "Identify corner positions",
+          "Insertion algorithms",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/f2l_corners.rs"
+        ]
+      },
+      "R6.5": {
+        "description": "3x3 tutorial: second layer",
+        "acceptance_criteria": [
+          "Edge insertion algorithms",
+          "Left and right cases",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/f2l_edges.rs"
+        ]
+      },
+      "R6.6": {
+        "description": "3x3 tutorial: OLL (orient last layer)",
+        "acceptance_criteria": [
+          "2-look OLL algorithms",
+          "Pattern recognition",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/oll.rs"
+        ]
+      },
+      "R6.7": {
+        "description": "3x3 tutorial: PLL (permute last layer)",
+        "acceptance_criteria": [
+          "2-look PLL algorithms",
+          "Pattern recognition",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/pll.rs"
+        ]
+      },
+      "R6.8": {
+        "description": "2x2 tutorial",
+        "acceptance_criteria": [
+          "Ortega method or beginner method",
+          "Step-by-step instructions",
+          "Practice mode"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/two_by_two.rs"
+        ]
+      },
+      "R6.9": {
+        "description": "4x4 tutorial (centers, edges, parity)",
+        "acceptance_criteria": [
+          "Center solving strategy",
+          "Edge pairing strategy",
+          "Parity algorithm explanation"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/lessons/four_by_four.rs"
+        ]
+      },
+      "R6.10": {
+        "description": "Interactive practice mode",
+        "acceptance_criteria": [
+          "Generate specific practice cases",
+          "Hints available",
+          "Check if solution is correct"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/tutorial/practice.rs"
+        ]
+      },
+      "R6.11": {
+        "description": "Progress tracking",
+        "acceptance_criteria": [
+          "Track completed lessons",
+          "Track practice stats",
+          "Persist to local storage"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/state/progress.rs"
+        ]
+      },
+      "R6.12": {
+        "description": "Kid-friendly UI (large buttons, icons)",
+        "acceptance_criteria": [
+          "Minimum 44px touch targets",
+          "Clear icons for all actions",
+          "Simple, uncluttered layout",
+          "Bright, engaging colors"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/components/ui_kit.rs"
+        ]
+      }
+    },
+    "R7_cross_platform": {
+      "R7.1": {
+        "description": "Web build (WASM)",
+        "acceptance_criteria": [
+          "Compiles to WebAssembly",
+          "Runs in Chrome, Firefox, Safari, Edge",
+          "Bundle size under 5MB",
+          "Loads in under 3 seconds"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml",
+          "web/index.html"
+        ]
+      },
+      "R7.2": {
+        "description": "Desktop macOS build",
+        "acceptance_criteria": [
+          "Native .app bundle",
+          "Works on macOS 12+",
+          "App Store ready (optional)"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml"
+        ]
+      },
+      "R7.3": {
+        "description": "Desktop Windows build",
+        "acceptance_criteria": [
+          "Native .exe",
+          "Works on Windows 10/11",
+          "No installer required"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml"
+        ]
+      },
+      "R7.4": {
+        "description": "Desktop Linux build",
+        "acceptance_criteria": [
+          "Native binary",
+          "Works on Ubuntu 22.04+",
+          "AppImage or Flatpak (optional)"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml"
+        ]
+      },
+      "R7.5": {
+        "description": "Android build",
+        "acceptance_criteria": [
+          "APK builds successfully",
+          "Works on Android 10+",
+          "Play Store ready (optional)"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml",
+          "mobile/android/"
+        ]
+      },
+      "R7.6": {
+        "description": "iOS build",
+        "acceptance_criteria": [
+          "IPA builds successfully",
+          "Works on iOS 15+",
+          "App Store ready (optional)"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "Dioxus.toml",
+          "mobile/ios/"
+        ]
+      },
+      "R7.7": {
+        "description": "Touch input support",
+        "acceptance_criteria": [
+          "All features work with touch",
+          "No hover-dependent features",
+          "Proper touch targets"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/input/touch.rs"
+        ]
+      },
+      "R7.8": {
+        "description": "Responsive layout",
+        "acceptance_criteria": [
+          "Works on 320px width (small phone)",
+          "Works on 1920px width (desktop)",
+          "No horizontal scrolling",
+          "Readable text at all sizes"
+        ],
+        "implemented": false,
+        "tests_passing": false,
+        "files": [
+          "src/styles/responsive.css"
+        ]
+      }
+    }
+  },
+  "summary": {
+    "total_requirements": 56,
+    "implemented": 7,
+    "tests_passing": 7,
+    "completion_percentage": 12.5
+  }
+}
