@@ -6,7 +6,7 @@ mod components;
 mod cube;
 mod renderer;
 
-use components::{ColorPicker, Cube3D, CubeInput, StickerPosition};
+use components::{ColorPicker, Cube3D, CubeControls, CubeInput, StickerPosition};
 use cube::{Color, Cube, FaceName};
 use dioxus::prelude::*;
 use renderer::WgpuContextConfig;
@@ -119,6 +119,20 @@ fn App() -> Element {
                                     cube.set(current_cube);
                                 }
                             },
+                        }
+                    }
+
+                    // Cube Controls (Reset button)
+                    div {
+                        style: "display: flex; justify-content: center; margin-top: 2rem;",
+                        CubeControls {
+                            cube: cube(),
+                            on_reset: move |new_cube: Cube| {
+                                cube.set(new_cube);
+                                // Clear selections when resetting
+                                selected_sticker.set(None);
+                                selected_color.set(None);
+                            }
                         }
                     }
                 }
