@@ -1315,3 +1315,61 @@ replace the current CSS-based visualization, but the sync mechanism will remain 
 - Create PR and merge to main
 - Implement R3.5: Validation feedback
 
+
+---
+
+## 2026-01-11 - R3.5 Validation Feedback
+
+### Completed
+- Implemented R3.5: Validation feedback (invalid states)
+  - Created `ValidationFeedback` Dioxus component
+  - Created `ValidationFeedbackProps` for component configuration
+  - Implemented `get_error_info()` to map validation errors to UI messages
+  - Implemented `get_kid_friendly_message()` for child-appropriate error messages
+  - Implemented `get_validation_styles()` with comprehensive CSS
+  - Supports all ValidationError types:
+    - InvalidColorCount: Shows specific color and count discrepancy
+    - MissingColors: Lists which colors are missing
+    - EdgeParity: Kid-friendly message about unsolvable state
+    - CornerParity: Kid-friendly message about unsolvable state
+    - PermutationParity: Kid-friendly message about unsolvable state
+  - Visual feedback with icons, colors, and severity levels
+  - Accessibility features: ARIA labels, role="alert", high contrast
+  - Kid-friendly mode with larger fonts and padding
+  
+### Acceptance Criteria Met
+- ✅ Show warning for wrong color counts (displays color count errors)
+- ✅ Show error for unsolvable states (parity errors displayed clearly)
+- ✅ Clear error messages (both technical and kid-friendly versions)
+
+### Tests
+- 9 unit tests in src/components/validation_feedback.rs
+- 14 integration tests in tests/validation_feedback_tests.rs
+- All 23 tests passing
+- Tests cover:
+  - All error types (InvalidColorCount, MissingColors, Parity errors)
+  - Kid-friendly messages for all error types
+  - CSS styles completeness and structure
+  - Accessibility features
+  - All 6 colors error messaging
+  - Actionable error messages
+
+### Files Modified/Created
+- src/components/validation_feedback.rs (NEW - 360 lines)
+- src/components/mod.rs (updated to export validation_feedback module)
+- tests/validation_feedback_tests.rs (NEW - 260 lines with 14 integration tests)
+
+### Git Status
+- On branch: feat/r3-5-validation-feedback
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R3.5 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=22, tests_passing=22, completion_percentage=36.67
+- progress.txt: This file
+
+### Next Steps
+- Commit and push R3.5 work
+- Create PR and merge to main
+- Implement R3.6: Reset to solved state
+- Implement R3.7: Undo/redo color changes
