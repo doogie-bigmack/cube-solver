@@ -1,0 +1,20 @@
+[application]
+name = "rubiks-cube-solver"
+default_platform = "web"
+
+[web.app]
+title = "Rubik's Cube Solver & Tutorial"
+base_path = "."
+
+[web.watcher]
+watch_path = ["src"]
+
+[web.resource]
+dev = true
+
+[[web.resource.style]]
+href = "/assets/main.css"
+
+[bundle]
+identifier = "com.rubiks.cube.solver"
+publisher = "Rubik's Cube Solver Team"

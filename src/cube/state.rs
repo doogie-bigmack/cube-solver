@@ -5,8 +5,64 @@
 //! - Each face stores NxN grid of colors
 //! - Colors enum: White, Yellow, Red, Orange, Blue, Green
 //! - New cube initializes to solved state
+//!
+//! Also implements R1.9: State serialization (save/load)
+//! - Serialize cube state to JSON
+//! - Deserialize JSON to cube state
+//! - Handle version compatibility
 
 use serde::{Deserialize, Serialize};
+use std::fmt;
+
+/// Current serialization format version
+const SERIALIZATION_VERSION: u32 = 1;
+
+/// Error types for serialization/deserialization
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SerializationError {
+    /// JSON serialization failed
+    SerializationFailed(String),
+    /// JSON deserialization failed
+    DeserializationFailed(String),
+    /// Unsupported version
+    UnsupportedVersion { found: u32, supported: u32 },
+    /// Invalid cube state (e.g., wrong color counts)
+    InvalidCubeState(String),
+}
+
+impl fmt::Display for SerializationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SerializationError::SerializationFailed(msg) => {
+                write!(f, "Serialization failed: {}", msg)
+            }
+            SerializationError::DeserializationFailed(msg) => {
+                write!(f, "Deserialization failed: {}", msg)
+            }
+            SerializationError::UnsupportedVersion { found, supported } => {
+                write!(
+                    f,
+                    "Unsupported version: found v{}, but only v{} is supported",
+                    found, supported
+                )
+            }
+            SerializationError::InvalidCubeState(msg) => {
+                write!(f, "Invalid cube state: {}", msg)
+            }
+        }
+    }
+}
+
+impl std::error::Error for SerializationError {}
+
+/// Wrapper struct for versioned cube serialization
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct CubeData {
+    /// Format version for backwards compatibility
+    version: u32,
+    /// The actual cube state
+    cube: Cube,
+}
 
 /// The six standard Rubik's cube colors
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -300,6 +356,95 @@ impl Cube {
         // Each color must appear exactly N^2 times
         counts.values().all(|&count| count == expected)
     }
+
+    /// Serializes the cube state to a JSON string
+    ///
+    /// The JSON includes version information for backwards compatibility.
+    ///
+    /// # Returns
+    /// * `Ok(String)` - JSON string representation of the cube
+    /// * `Err(SerializationError)` - If serialization fails
+    ///
+    /// # Example
+    /// ```
+    /// use rubiks_cube_solver::cube::Cube;
+    ///
+    /// let cube = Cube::new(3);
+    /// let json = cube.to_json().expect("Serialization should succeed");
+    /// assert!(json.contains("\"version\":"));
+    /// ```
+    pub fn to_json(&self) -> Result<String, SerializationError> {
+        let data = CubeData {
+            version: SERIALIZATION_VERSION,
+            cube: self.clone(),
+        };
+
+        serde_json::to_string(&data).map_err(|e| {
+            SerializationError::SerializationFailed(e.to_string())
+        })
+    }
+
+    /// Serializes the cube state to a pretty-printed JSON string
+    ///
+    /// Same as `to_json()` but with indentation for human readability.
+    ///
+    /// # Returns
+    /// * `Ok(String)` - Pretty-printed JSON string
+    /// * `Err(SerializationError)` - If serialization fails
+    pub fn to_json_pretty(&self) -> Result<String, SerializationError> {
+        let data = CubeData {
+            version: SERIALIZATION_VERSION,
+            cube: self.clone(),
+        };
+
+        serde_json::to_string_pretty(&data).map_err(|e| {
+            SerializationError::SerializationFailed(e.to_string())
+        })
+    }
+
+    /// Deserializes a cube state from a JSON string
+    ///
+    /// Validates version compatibility and cube state validity.
+    ///
+    /// # Arguments
+    /// * `json` - JSON string representation of a cube
+    ///
+    /// # Returns
+    /// * `Ok(Cube)` - Deserialized cube
+    /// * `Err(SerializationError)` - If deserialization fails or version is unsupported
+    ///
+    /// # Example
+    /// ```
+    /// use rubiks_cube_solver::cube::Cube;
+    ///
+    /// let original = Cube::new(3);
+    /// let json = original.to_json().unwrap();
+    /// let restored = Cube::from_json(&json).unwrap();
+    /// assert_eq!(original, restored);
+    /// ```
+    pub fn from_json(json: &str) -> Result<Self, SerializationError> {
+        // Deserialize with version info
+        let data: CubeData = serde_json::from_str(json).map_err(|e| {
+            SerializationError::DeserializationFailed(e.to_string())
+        })?;
+
+        // Check version compatibility
+        if data.version != SERIALIZATION_VERSION {
+            return Err(SerializationError::UnsupportedVersion {
+                found: data.version,
+                supported: SERIALIZATION_VERSION,
+            });
+        }
+
+        // Validate the cube state
+        if !data.cube.has_valid_color_counts() {
+            return Err(SerializationError::InvalidCubeState(
+                "Invalid color counts".to_string(),
+            ));
+        }
+
+        Ok(data.cube)
+    }
 }
 
 #[cfg(test)]
@@ -496,5 +641,120 @@ mod tests {
         assert_eq!(FaceName::B.standard_color(), Color::Blue);
         assert_eq!(FaceName::L.standard_color(), Color::Orange);
         assert_eq!(FaceName::R.standard_color(), Color::Red);
+    }
+
+    // ============================================================
+    // R1.9 Serialization Tests
+    // ============================================================
+
+    #[test]
+    fn test_serialize_solved_cube() {
+        let cube = Cube::new(3);
+        let json = cube.to_json().expect("Serialization should succeed");
+        assert!(json.contains("\"version\":"));
+        assert!(json.contains("\"cube\":"));
+    }
+
+    #[test]
+    fn test_deserialize_solved_cube() {
+        let cube = Cube::new(3);
+        let json = cube.to_json().unwrap();
+        let restored = Cube::from_json(&json).expect("Deserialization should succeed");
+        assert_eq!(cube, restored);
+    }
+
+    #[test]
+    fn test_round_trip_scrambled_cube() {
+        use crate::cube::moves::Move;
+        let mut cube = Cube::new(3);
+        // Apply some moves to scramble
+        cube.apply_move(Move::R);
+        cube.apply_move(Move::U);
+        cube.apply_move(Move::RPrime);
+        cube.apply_move(Move::UPrime);
+
+        let json = cube.to_json().unwrap();
+        let restored = Cube::from_json(&json).unwrap();
+        assert_eq!(cube, restored);
+    }
+
+    #[test]
+    fn test_serialize_different_sizes() {
+        for size in [2, 3, 4, 5, 7, 10, 20] {
+            let cube = Cube::new(size);
+            let json = cube.to_json().unwrap();
+            let restored = Cube::from_json(&json).unwrap();
+            assert_eq!(cube.size(), restored.size());
+            assert_eq!(cube, restored);
+        }
+    }
+
+    #[test]
+    fn test_pretty_print_json() {
+        let cube = Cube::new(2);
+        let json = cube.to_json_pretty().unwrap();
+        // Pretty print should have newlines and indentation
+        assert!(json.contains('\n'));
+        assert!(json.contains("  "));
+    }
+
+    #[test]
+    fn test_invalid_json() {
+        let result = Cube::from_json("not valid json");
+        assert!(result.is_err());
+        match result {
+            Err(SerializationError::DeserializationFailed(_)) => {}
+            _ => panic!("Expected DeserializationFailed error"),
+        }
+    }
+
+    #[test]
+    fn test_unsupported_version() {
+        // First, get a valid cube JSON to use as a template
+        let cube = Cube::new(3);
+        let valid_json = cube.to_json().unwrap();
+
+        // Parse it and change the version to an unsupported one
+        let mut parsed: serde_json::Value = serde_json::from_str(&valid_json).unwrap();
+        parsed["version"] = serde_json::json!(999);
+        let invalid_version_json = serde_json::to_string(&parsed).unwrap();
+
+        let result = Cube::from_json(&invalid_version_json);
+        assert!(result.is_err());
+        match result {
+            Err(SerializationError::UnsupportedVersion { found, supported }) => {
+                assert_eq!(found, 999);
+                assert_eq!(supported, 1);
+            }
+            _ => panic!("Expected UnsupportedVersion error"),
+        }
+    }
+
+    #[test]
+    fn test_serialization_error_display() {
+        let err = SerializationError::SerializationFailed("test".to_string());
+        assert_eq!(err.to_string(), "Serialization failed: test");
+
+        let err = SerializationError::DeserializationFailed("test".to_string());
+        assert_eq!(err.to_string(), "Deserialization failed: test");
+
+        let err = SerializationError::UnsupportedVersion {
+            found: 2,
+            supported: 1,
+        };
+        assert_eq!(
+            err.to_string(),
+            "Unsupported version: found v2, but only v1 is supported"
+        );
+
+        let err = SerializationError::InvalidCubeState("test".to_string());
+        assert_eq!(err.to_string(), "Invalid cube state: test");
+    }
+
+    #[test]
+    fn test_json_includes_version() {
+        let cube = Cube::new(3);
+        let json = cube.to_json().unwrap();
+        assert!(json.contains(&format!("\"version\":{}", SERIALIZATION_VERSION)));
     }
 }
