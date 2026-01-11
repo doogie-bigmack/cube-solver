@@ -134,6 +134,14 @@ pub struct OrbitController {
     pub target_azimuth: f32,
     /// Target elevation for smooth interpolation
     pub target_elevation: f32,
+    /// Target distance for smooth zoom
+    pub target_distance: f32,
+    /// Minimum zoom distance (closest to cube)
+    pub min_distance: f32,
+    /// Maximum zoom distance (farthest from cube)
+    pub max_distance: f32,
+    /// Zoom sensitivity (distance change per scroll unit)
+    pub zoom_sensitivity: f32,
 }
 
 impl Default for OrbitController {
@@ -142,11 +150,15 @@ impl Default for OrbitController {
         Self {
             target_azimuth: camera.azimuth,
             target_elevation: camera.elevation,
+            target_distance: camera.distance,
             camera,
             rotation_sensitivity: 0.005, // 0.005 radians per pixel ≈ 0.3 degrees
             is_dragging: false,
             last_position: None,
             smoothing: 0.15,
+            min_distance: 2.0,  // Closest zoom (2 units from cube)
+            max_distance: 15.0, // Farthest zoom (15 units from cube)
+            zoom_sensitivity: 0.5, // 0.5 units per scroll notch
         }
     }
 }
@@ -162,6 +174,7 @@ impl OrbitController {
         Self {
             target_azimuth: camera.azimuth,
             target_elevation: camera.elevation,
+            target_distance: camera.distance,
             camera,
             ..Default::default()
         }
@@ -208,6 +221,28 @@ impl OrbitController {
         self.last_position = None;
     }
 
+    /// Zoom in or out by delta amount
+    /// Positive delta zooms in (closer), negative zooms out (farther)
+    pub fn zoom(&mut self, delta: f32) {
+        self.target_distance -= delta * self.zoom_sensitivity;
+        self.target_distance = self.target_distance.clamp(self.min_distance, self.max_distance);
+    }
+
+    /// Zoom to specific distance
+    pub fn zoom_to(&mut self, distance: f32) {
+        self.target_distance = distance.clamp(self.min_distance, self.max_distance);
+    }
+
+    /// Handle pinch zoom (for touch devices)
+    /// scale > 1.0 means zoom in, scale < 1.0 means zoom out
+    pub fn pinch_zoom(&mut self, scale: f32) {
+        // Convert scale to distance change
+        // scale of 1.1 (10% increase) should zoom in by reducing distance 10%
+        // scale of 0.9 (10% decrease) should zoom out by increasing distance 10%
+        self.target_distance = self.camera.distance / scale;
+        self.target_distance = self.target_distance.clamp(self.min_distance, self.max_distance);
+    }
+
     /// Update camera with smooth interpolation
     /// Call this every frame
     pub fn update(&mut self) {
@@ -216,6 +251,10 @@ impl OrbitController {
             (self.target_azimuth - self.camera.azimuth) * self.smoothing;
         self.camera.elevation +=
             (self.target_elevation - self.camera.elevation) * self.smoothing;
+
+        // Lerp towards target distance (smooth zoom)
+        self.camera.distance +=
+            (self.target_distance - self.camera.distance) * self.smoothing;
     }
 
     /// Set aspect ratio
@@ -228,6 +267,7 @@ impl OrbitController {
         self.camera.reset();
         self.target_azimuth = self.camera.azimuth;
         self.target_elevation = self.camera.elevation;
+        self.target_distance = self.camera.distance;
     }
 }
 
@@ -393,5 +433,155 @@ mod tests {
         let mut controller = OrbitController::new();
         controller.set_aspect_ratio(16.0 / 9.0);
         assert_eq!(controller.camera.aspect_ratio, 16.0 / 9.0);
+    }
+
+    #[test]
+    fn test_zoom_in() {
+        let mut controller = OrbitController::new();
+        let initial_distance = controller.target_distance;
+
+        // Positive delta zooms in (closer)
+        controller.zoom(1.0);
+
+        assert!(controller.target_distance < initial_distance);
+    }
+
+    #[test]
+    fn test_zoom_out() {
+        let mut controller = OrbitController::new();
+        let initial_distance = controller.target_distance;
+
+        // Negative delta zooms out (farther)
+        controller.zoom(-1.0);
+
+        assert!(controller.target_distance > initial_distance);
+    }
+
+    #[test]
+    fn test_zoom_min_clamp() {
+        let mut controller = OrbitController::new();
+
+        // Try to zoom in past minimum
+        controller.zoom(1000.0); // Very large zoom in
+
+        assert_eq!(controller.target_distance, controller.min_distance);
+    }
+
+    #[test]
+    fn test_zoom_max_clamp() {
+        let mut controller = OrbitController::new();
+
+        // Try to zoom out past maximum
+        controller.zoom(-1000.0); // Very large zoom out
+
+        assert_eq!(controller.target_distance, controller.max_distance);
+    }
+
+    #[test]
+    fn test_zoom_to() {
+        let mut controller = OrbitController::new();
+
+        controller.zoom_to(7.0);
+        assert_eq!(controller.target_distance, 7.0);
+
+        // Should clamp to min
+        controller.zoom_to(1.0);
+        assert_eq!(controller.target_distance, controller.min_distance);
+
+        // Should clamp to max
+        controller.zoom_to(20.0);
+        assert_eq!(controller.target_distance, controller.max_distance);
+    }
+
+    #[test]
+    fn test_pinch_zoom_in() {
+        let mut controller = OrbitController::new();
+        let initial_distance = controller.target_distance;
+
+        // scale > 1.0 means zoom in
+        controller.pinch_zoom(1.2);
+
+        assert!(controller.target_distance < initial_distance);
+    }
+
+    #[test]
+    fn test_pinch_zoom_out() {
+        let mut controller = OrbitController::new();
+        let initial_distance = controller.target_distance;
+
+        // scale < 1.0 means zoom out
+        controller.pinch_zoom(0.8);
+
+        assert!(controller.target_distance > initial_distance);
+    }
+
+    #[test]
+    fn test_pinch_zoom_clamping() {
+        let mut controller = OrbitController::new();
+
+        // Try to pinch zoom in very far
+        controller.pinch_zoom(100.0);
+        assert!(controller.target_distance >= controller.min_distance);
+        assert!(controller.target_distance <= controller.max_distance);
+
+        // Try to pinch zoom out very far
+        controller.pinch_zoom(0.01);
+        assert!(controller.target_distance >= controller.min_distance);
+        assert!(controller.target_distance <= controller.max_distance);
+    }
+
+    #[test]
+    fn test_smooth_zoom_update() {
+        let mut controller = OrbitController::new();
+        controller.target_distance = 10.0;
+        controller.camera.distance = 5.0;
+
+        // Update once
+        controller.update();
+
+        // Camera distance should have moved towards target but not reached it
+        assert!(controller.camera.distance > 5.0);
+        assert!(controller.camera.distance < 10.0);
+    }
+
+    #[test]
+    fn test_zoom_sensitivity() {
+        let mut controller = OrbitController::new();
+        let sensitivity = controller.zoom_sensitivity;
+        let initial_distance = controller.target_distance;
+
+        controller.zoom(1.0);
+
+        // Change should be 1.0 * sensitivity
+        assert!((controller.target_distance - (initial_distance - sensitivity)).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_zoom_reset() {
+        let mut controller = OrbitController::new();
+
+        // Change zoom
+        controller.zoom(3.0);
+        controller.update();
+
+        // Reset
+        controller.reset();
+
+        // Should be back to default
+        let default_camera = Camera::default();
+        assert_eq!(controller.target_distance, default_camera.distance);
+    }
+
+    #[test]
+    fn test_zoom_limits_configurable() {
+        let mut controller = OrbitController::new();
+        controller.min_distance = 1.0;
+        controller.max_distance = 20.0;
+
+        controller.zoom_to(0.5);
+        assert_eq!(controller.target_distance, 1.0);
+
+        controller.zoom_to(25.0);
+        assert_eq!(controller.target_distance, 20.0);
     }
 }

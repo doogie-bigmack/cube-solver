@@ -193,8 +193,8 @@
           "Min/max zoom limits",
           "Smooth zoom animation"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/camera.rs"
         ]
@@ -840,8 +840,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 12,
-    "tests_passing": 12,
-    "completion_percentage": 21.43
+    "implemented": 13,
+    "tests_passing": 13,
+    "completion_percentage": 23.21
   }
 }

@@ -715,3 +715,80 @@ This is deferred to a future enhancement. Current implementation:
 - Implement R2.4: Camera zoom controls
 - Implement R2.5: Smooth face rotation animations
 
+
+---
+
+## 2026-01-11 - R2.4 Camera Zoom Controls
+
+### Completed
+- Implemented R2.4: Camera zoom controls
+  - Extended OrbitController with zoom functionality
+  - Added target_distance field for smooth zoom animation
+  - Added min_distance and max_distance fields for zoom limits (2.0 to 15.0)
+  - Added zoom_sensitivity field for configurable zoom speed
+  - Implemented zoom() method for scroll wheel zoom (positive = zoom in, negative = zoom out)
+  - Implemented zoom_to() method for direct distance targeting
+  - Implemented pinch_zoom() method for touch device pinch gestures
+  - Updated update() method to smoothly interpolate distance changes
+  - Updated reset() method to restore default zoom level
+  - All zoom operations respect min/max limits with clamping
+
+### Acceptance Criteria Met
+- ✅ Scroll wheel to zoom in/out (via zoom() method)
+- ✅ Pinch to zoom on mobile (via pinch_zoom() method)
+- ✅ Min/max zoom limits (2.0 to 15.0 units, configurable)
+- ✅ Smooth zoom animation (lerp interpolation in update() method)
+
+### Tests
+- 12 new unit tests in src/renderer/camera.rs
+- All 170 tests passing total (158 lib + all integration tests)
+- Tests cover:
+  - test_zoom_in: Positive delta zooms in (closer) ✅
+  - test_zoom_out: Negative delta zooms out (farther) ✅
+  - test_zoom_min_clamp: Cannot zoom past minimum distance ✅
+  - test_zoom_max_clamp: Cannot zoom past maximum distance ✅
+  - test_zoom_to: Direct distance targeting with clamping ✅
+  - test_pinch_zoom_in: Pinch scale > 1.0 zooms in ✅
+  - test_pinch_zoom_out: Pinch scale < 1.0 zooms out ✅
+  - test_pinch_zoom_clamping: Pinch respects limits ✅
+  - test_smooth_zoom_update: Smooth interpolation works ✅
+  - test_zoom_sensitivity: Zoom delta respects sensitivity ✅
+  - test_zoom_reset: Reset restores default zoom ✅
+  - test_zoom_limits_configurable: Min/max can be customized ✅
+
+### Files Modified/Created
+- src/renderer/camera.rs (extended with ~60 lines for zoom + 140 lines for tests)
+  - Added 4 new fields to OrbitController (target_distance, min_distance, max_distance, zoom_sensitivity)
+  - Added 3 new public methods (zoom, zoom_to, pinch_zoom)
+  - Updated update() method to include distance lerping
+  - Updated reset() method to restore target_distance
+  - Updated Default and with_camera implementations
+  - Added 12 comprehensive unit tests
+
+### Git Status
+- On branch: feat/r2-4-camera-zoom
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R2.4 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=13, tests_passing=13, completion_percentage=23.21
+- progress.txt: This file
+
+### Implementation Details
+The zoom implementation uses a smooth interpolation approach similar to the camera rotation:
+- Target distance is updated immediately when user scrolls or pinches
+- Actual camera distance lerps towards target over multiple frames
+- Configurable smoothing factor (0.15) provides natural motion
+- Clamping ensures camera never gets too close (min 2.0) or too far (max 15.0)
+
+Zoom methods:
+- zoom(delta): Traditional scroll wheel interface, delta units per scroll notch
+- zoom_to(distance): Direct distance setting, useful for preset camera positions
+- pinch_zoom(scale): Touch pinch interface, scale > 1.0 zooms in, < 1.0 zooms out
+
+### Next Steps
+- Commit and push R2.4 work
+- Create PR and merge to main
+- Implement R2.5: Smooth face rotation animations
+- Implement R2.6: Color-coded stickers with proper spacing
+
