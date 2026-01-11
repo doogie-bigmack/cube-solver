@@ -658,3 +658,60 @@ This is deferred to a future enhancement. Current implementation:
 - Create PR and merge to main
 - Implement R2.3: Camera orbit controls
 - Implement R2.4: Camera zoom controls
+
+---
+
+## 2026-01-11 - R2.3 Camera Orbit Controls
+
+### Completed
+- Implemented R2.3: Camera orbit controls (mouse/touch drag)
+  - Created `Camera` struct with orbit positioning (azimuth, elevation, distance)
+  - Implemented view and projection matrix generation
+  - Added camera rotation with angle constraints
+  - Elevation clamped to prevent gimbal lock (-89° to +89°)
+  - Azimuth wraps around 360°
+  - Created `OrbitController` struct for managing user input
+  - Drag lifecycle: start_drag(), update_drag(), end_drag()
+  - Smooth interpolation between current and target angles
+  - Configurable rotation sensitivity
+  - Support for both mouse and touch input (same API)
+  - Reset functionality to return to default view
+
+### Acceptance Criteria Met
+- ✅ Drag to rotate camera around cube (OrbitController handles mouse/touch drag)
+- ✅ Smooth interpolation (lerp with configurable smoothing factor)
+- ✅ Constrain to reasonable angles (elevation clamped, azimuth wrapped)
+- ✅ Touch support for mobile (same drag API works for touch events)
+
+### Tests
+- 13 unit tests in src/renderer/camera.rs
+- 13 integration tests in tests/camera_tests.rs
+- All 26 camera tests passing
+- Tests cover:
+  - Camera position calculation and view/projection matrices
+  - Rotation and angle constraints (elevation clamping, azimuth wrapping)
+  - Orbit controller drag lifecycle and smooth updates
+  - Aspect ratio handling and reset functionality
+  - Sensitivity configuration
+  - Convergence behavior
+
+### Files Modified/Created
+- src/renderer/camera.rs (NEW - 440 lines with full implementation)
+- src/renderer/mod.rs (updated to export Camera and OrbitController)
+- tests/camera_tests.rs (NEW - 13 integration tests)
+
+### Git Status
+- On branch: feat/r2-3-camera-orbit-controls
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R2.3 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=12, tests_passing=12, completion_percentage=21.43
+- progress.txt: This file
+
+### Next Steps
+- Commit and push R2.3 work
+- Create PR and merge to main
+- Implement R2.4: Camera zoom controls
+- Implement R2.5: Smooth face rotation animations
+
