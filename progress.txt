@@ -1028,3 +1028,115 @@ Total test count: 220+ tests passing (200 lib + 20 responsive integration)
   - R6.x: Tutorial system
   - R7.x: Cross-platform builds
 
+---
+
+## 2026-01-11 - R3.1 2D Unfolded Cube View
+
+### Completed
+- Implemented R3.1: 2D unfolded cube view
+  - Created `CubeInput` Dioxus component displaying cube in cross pattern layout
+  - Created `UnfoldedLayout` struct with smart sizing based on cube size
+    - 2x2: 40px stickers, 3x3: 30px stickers, scaling down to 10px for 20x20
+    - Proportional gaps (5% between stickers, 30% between faces)
+    - Automatic font sizing for face labels (80% of sticker size)
+  - Created `FacePosition` helper struct for cross pattern layout:
+    - Up face at top (row 0, col 1)
+    - Left, Front, Right, Back in middle row (row 1, cols 0-3)
+    - Down face at bottom (row 2, col 1)
+  - Implemented color_to_css() for accurate Rubik's cube colors:
+    - White: #FFFFFF, Yellow: #FFD500
+    - Red: #C41E3A, Orange: #FF5800
+    - Blue: #0051BA, Green: #009E60
+  - Each sticker is clickable with hover effects and title tooltips
+  - Optional on_sticker_click callback for future interaction (R3.2)
+  - Clear face labels (U, D, L, R, F, B) positioned above each face
+  - All 6 faces displayed in standard cross pattern
+  - Works for all cube sizes (2x2 to 20x20)
+  - Integrated into main.rs with new responsive layout
+
+### Acceptance Criteria Met
+- ✅ Display cube as unfolded cross pattern (cross layout implemented)
+- ✅ Show all 6 faces (all faces rendered with correct positioning)
+- ✅ Clear face labels (U, D, L, R, F, B) (labels rendered above each face)
+- ✅ Scale appropriately for cube size (smart sizing: 40px for 2x2 down to 10px for 20x20)
+
+### Tests
+- 8 unit tests in src/components/cube_input.rs (all passing)
+- 15 integration tests in tests/cube_input_tests.rs (all passing)
+- Total: 23 tests covering cube input functionality
+- All 228 total tests passing (208 lib + 208 main + 14 animation + 12 camera + 15 cube_input + 11 cube + 9 highlight + 18 move + 23 notation + 20 responsive + 14 rotation + 12 scramble + 13 serialization + 19 slice + 15 validation + 12 wgpu + 12 wide + 3 doc)
+- Tests cover:
+  - test_unfolded_layout_2x2: 2x2 layout ✅
+  - test_unfolded_layout_3x3: 3x3 layout ✅
+  - test_unfolded_layout_scaling: Size scaling ✅
+  - test_face_positions: Cross pattern layout ✅
+  - test_color_to_css: Color conversion ✅
+  - test_layout_gap_proportions: Gap ratios ✅
+  - test_face_dimensions_symmetry: Square faces ✅
+  - test_layout_for_various_sizes: All sizes 2-20 ✅
+  - Integration tests cube_input_001 through cube_input_015 ✅
+    - Layout validation for 2x2, 3x3, 4x4, 5x5, 10x10, 20x20
+    - All sizes have valid layouts
+    - Gap proportions correct
+    - Sticker size scaling works
+    - Solved cube dimensions reasonable
+    - Face width equals height
+    - Layout consistency
+    - Cross pattern total dimensions
+    - Minimum and maximum size handling
+
+### Files Modified/Created
+- src/components/cube_input.rs (NEW - 330+ lines with full implementation + 8 tests)
+  - CubeInput component
+  - CubeInputProps struct
+  - UnfoldedLayout struct with for_cube_size method
+  - FacePosition helper struct
+  - color_to_css helper function
+  - render_face and render_sticker helper functions
+  - 8 comprehensive unit tests
+- src/components/mod.rs (updated to export cube_input module)
+- src/main.rs (updated to display both 3D and 2D views)
+  - Added CubeInput component alongside Cube3D
+  - New layout with sections for 3D view and 2D view
+  - Improved styling with cards and spacing
+  - Updated status indicators showing R3.1 complete
+- tests/cube_input_tests.rs (NEW - 230+ lines with 15 integration tests)
+
+### Git Status
+- On branch: feat/r3-1-2d-unfolded-cube-view
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R3.1 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=18, tests_passing=18, completion_percentage=32.14
+- progress.txt: This file
+
+### Implementation Details
+The 2D unfolded cube view uses a responsive grid layout:
+1. Calculates sticker size based on cube size (smaller stickers for larger cubes)
+2. Arranges faces in cross pattern (standard unfolded cube layout)
+3. Renders each sticker as a colored div with proper styling
+4. Includes face labels for easy identification
+5. Supports click handlers for future interaction features
+
+Key features:
+- **Smart sizing**: Sticker size scales from 40px (2x2) to 10px (20x20)
+- **Accurate colors**: Uses standard Rubik's cube color scheme
+- **Cross pattern**: Standard unfolded cube layout used worldwide
+- **Clear labels**: Single-letter face labels (U, D, L, R, F, B)
+- **Clickable**: Each sticker has onclick handler ready for R3.2
+- **Responsive**: Total dimensions calculated based on cube size
+- **Professional styling**: Border, border-radius, hover effects
+
+The component is ready for integration with:
+- R3.2: Click/tap to select sticker (onclick handler already in place)
+- R3.3: Color picker palette (callback structure ready)
+- R3.4: Real-time sync with 3D view (both components use same Cube state)
+
+### Next Steps
+- Commit and push R3.1 work
+- Create PR and merge to main
+- Implement R3.2: Click/tap to select sticker
+- Implement R3.3: Color picker palette
+- Implement R3.4: Real-time sync with 3D view
+

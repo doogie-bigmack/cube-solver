@@ -268,10 +268,11 @@
           "Clear face labels (U, D, L, R, F, B)",
           "Scale appropriately for cube size"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/components/cube_input.rs"
+          "src/components/cube_input.rs",
+          "tests/cube_input_tests.rs"
         ]
       },
       "R3.2": {
@@ -844,8 +845,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 17,
-    "tests_passing": 17,
-    "completion_percentage": 30.36
+    "implemented": 18,
+    "tests_passing": 18,
+    "completion_percentage": 32.14
   }
 }
