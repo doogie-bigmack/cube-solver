@@ -297,10 +297,14 @@
           "Click color to apply to selected sticker",
           "Show currently selected color"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/components/color_picker.rs"
+          "src/components/color_picker.rs",
+          "src/components/mod.rs",
+          "src/main.rs",
+          "src/cube/state.rs",
+          "tests/color_picker_tests.rs"
         ]
       },
       "R3.4": {
@@ -846,9 +850,9 @@
     }
   },
   "summary": {
-    "total_requirements": 56,
-    "implemented": 19,
-    "tests_passing": 19,
-    "completion_percentage": 33.93
+    "total_requirements": 60,
+    "implemented": 20,
+    "tests_passing": 20,
+    "completion_percentage": 33.33
   }
 }
