@@ -8,9 +8,22 @@
 //! - Show all 6 faces
 //! - Clear face labels (U, D, L, R, F, B)
 //! - Scale appropriately for cube size
+//!
+//! Requirements: R3.2 - Click/tap to select sticker
+//! - Click any sticker to select it
+//! - Visual selection indicator
+//! - Touch support for mobile
 
 use dioxus::prelude::*;
 use crate::cube::{Cube, Color, FaceName};
+
+/// Represents a selected sticker position
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct StickerPosition {
+    pub face: FaceName,
+    pub row: usize,
+    pub col: usize,
+}
 
 /// Props for the CubeInput component
 #[derive(Clone, PartialEq, Props)]
@@ -20,6 +33,9 @@ pub struct CubeInputProps {
     /// Optional callback when a sticker is clicked (face, row, col)
     #[props(optional)]
     pub on_sticker_click: Option<EventHandler<(FaceName, usize, usize)>>,
+    /// Currently selected sticker (if any)
+    #[props(optional)]
+    pub selected_sticker: Option<StickerPosition>,
 }
 
 /// Layout configuration for the unfolded cube
@@ -137,7 +153,7 @@ pub fn CubeInput(props: CubeInputProps) -> Element {
                 FaceName::B,
                 FaceName::D,
             ] {
-                {render_face(&cube, face_name, &layout, props.on_sticker_click.clone())}
+                {render_face(&cube, face_name, &layout, props.on_sticker_click.clone(), props.selected_sticker)}
             }
         }
     }
@@ -149,6 +165,7 @@ fn render_face(
     face_name: FaceName,
     layout: &UnfoldedLayout,
     on_sticker_click: Option<EventHandler<(FaceName, usize, usize)>>,
+    selected_sticker: Option<StickerPosition>,
 ) -> Element {
     let pos = FacePosition::for_face(face_name);
     let face_width = layout.face_width(cube.size());
@@ -186,7 +203,7 @@ fn render_face(
             // Stickers grid
             for row in 0..cube.size() {
                 for col in 0..cube.size() {
-                    {render_sticker(face, row, col, face_name, layout, on_sticker_click.clone())}
+                    {render_sticker(face, row, col, face_name, layout, on_sticker_click.clone(), selected_sticker)}
                 }
             }
         }
@@ -201,6 +218,7 @@ fn render_sticker(
     face_name: FaceName,
     layout: &UnfoldedLayout,
     on_sticker_click: Option<EventHandler<(FaceName, usize, usize)>>,
+    selected_sticker: Option<StickerPosition>,
 ) -> Element {
     let color = face.get(row, col);
     let color_css = color_to_css(color);
@@ -208,16 +226,33 @@ fn render_sticker(
     let left = col as f32 * (layout.sticker_size + layout.gap);
     let top = row as f32 * (layout.sticker_size + layout.gap);
 
-    let sticker_style = format!(
-        "position: absolute; left: {}px; top: {}px; width: {}px; height: {}px; \
-         background: {}; border: 1px solid #2d3748; border-radius: 3px; \
-         cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;",
-        left, top, layout.sticker_size, layout.sticker_size, color_css
-    );
+    // Check if this sticker is selected
+    let is_selected = selected_sticker.map_or(false, |sel| {
+        sel.face == face_name && sel.row == row && sel.col == col
+    });
+
+    // Add visual indicator for selected sticker
+    let sticker_style = if is_selected {
+        format!(
+            "position: absolute; left: {}px; top: {}px; width: {}px; height: {}px; \
+             background: {}; border: 4px solid #3182ce; border-radius: 3px; \
+             cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; \
+             transform: scale(1.1); box-shadow: 0 0 10px rgba(49, 130, 206, 0.6); \
+             z-index: 10;",
+            left, top, layout.sticker_size, layout.sticker_size, color_css
+        )
+    } else {
+        format!(
+            "position: absolute; left: {}px; top: {}px; width: {}px; height: {}px; \
+             background: {}; border: 1px solid #2d3748; border-radius: 3px; \
+             cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;",
+            left, top, layout.sticker_size, layout.sticker_size, color_css
+        )
+    };
 
     rsx! {
         div {
-            class: "sticker",
+            class: if is_selected { "sticker selected" } else { "sticker" },
             style: "{sticker_style}",
             onmouseenter: move |_| {},
             onclick: move |_| {
@@ -225,6 +260,8 @@ fn render_sticker(
                     handler.call((face_name, row, col));
                 }
             },
+            // Touch events - onclick handles both mouse and touch
+            ontouchstart: move |_| {},
             title: format!("{:?} face ({}, {})", face_name, row, col),
         }
     }
