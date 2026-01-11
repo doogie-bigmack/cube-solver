@@ -14,7 +14,7 @@ pub mod validation;
 pub mod scramble;
 
 // Re-export main types
-pub use state::{Color, Cube, Face, FaceName};
+pub use state::{Color, Cube, Face, FaceName, SerializationError};
 pub use moves::{Move, WideMove, WideFace, Direction};
 pub use notation::{ParsedMove, NotationError, parse_move, parse_algorithm};
 pub use validation::{ValidationError, ValidationResult};
