@@ -9,7 +9,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The six standard Rubik's cube colors
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Color {
     White,
     Yellow,

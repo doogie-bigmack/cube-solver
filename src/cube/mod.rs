@@ -10,8 +10,10 @@
 pub mod state;
 pub mod moves;
 pub mod notation;
+pub mod validation;
 
 // Re-export main types
 pub use state::{Color, Cube, Face, FaceName};
 pub use moves::{Move, WideMove, WideFace, Direction};
 pub use notation::{ParsedMove, NotationError, parse_move, parse_algorithm};
+pub use validation::{ValidationError, ValidationResult};
