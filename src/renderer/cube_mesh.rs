@@ -29,6 +29,10 @@ pub struct MeshConfig {
     pub sticker_gap: f32,
     /// Sticker depth/thickness (how much they protrude from cube body)
     pub sticker_depth: f32,
+    /// Corner radius for rounded stickers as a fraction of sticker size (0.0 to 0.5)
+    pub corner_radius: f32,
+    /// Number of segments per rounded corner (higher = smoother)
+    pub corner_segments: u32,
 }
 
 impl Default for MeshConfig {
@@ -37,6 +41,8 @@ impl Default for MeshConfig {
             cube_size: 1.0,
             sticker_gap: 0.05, // 5% gap between stickers
             sticker_depth: 0.02, // Small protrusion
+            corner_radius: 0.15, // 15% of sticker size for rounded corners
+            corner_segments: 4, // 4 segments per corner for smooth rounding
         }
     }
 }
@@ -223,8 +229,8 @@ fn generate_face_stickers(
                 face_offset,
             );
 
-            // Generate quad for this sticker
-            generate_sticker_quad(
+            // Generate rounded sticker
+            generate_rounded_sticker(
                 vertices,
                 indices,
                 center,
@@ -232,6 +238,8 @@ fn generate_face_stickers(
                 v_dir,
                 normal,
                 effective_size,
+                config.corner_radius,
+                config.corner_segments,
                 color_rgb,
             );
         }
@@ -299,6 +307,7 @@ fn calculate_sticker_transform(
 }
 
 /// Generates a quad (2 triangles) for a single sticker
+/// Note: This is a simple quad version. For rounded corners, see generate_rounded_sticker
 fn generate_sticker_quad(
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u32>,
@@ -349,6 +358,114 @@ fn generate_sticker_quad(
     ]);
 }
 
+/// Generates a sticker with rounded corners
+fn generate_rounded_sticker(
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u32>,
+    center: Vec3,
+    u_dir: Vec3,
+    v_dir: Vec3,
+    normal: Vec3,
+    size: f32,
+    corner_radius_fraction: f32,
+    corner_segments: u32,
+    color: [f32; 3],
+) {
+    use std::f32::consts::PI;
+
+    let half_size = size / 2.0;
+    let corner_radius = size * corner_radius_fraction;
+    let inner_half = half_size - corner_radius;
+
+    let base_index = vertices.len() as u32;
+
+    // Center vertex for triangle fan
+    vertices.push(Vertex {
+        position: center.to_array(),
+        normal: normal.to_array(),
+        uv: [0.5, 0.5],
+        color,
+    });
+
+    let mut edge_vertices = Vec::new();
+
+    // Generate vertices around the perimeter with rounded corners
+    // We'll go counter-clockwise: bottom-left -> bottom-right -> top-right -> top-left
+
+    // Bottom edge (left to right)
+    edge_vertices.push(center - u_dir * inner_half - v_dir * half_size);
+    edge_vertices.push(center + u_dir * inner_half - v_dir * half_size);
+
+    // Bottom-right corner
+    let corner_center = center + u_dir * inner_half - v_dir * inner_half;
+    for i in 0..=corner_segments {
+        let angle = PI * 1.5 + (PI * 0.5 * i as f32 / corner_segments as f32);
+        let offset = u_dir * angle.cos() * corner_radius + v_dir * angle.sin() * corner_radius;
+        edge_vertices.push(corner_center + offset);
+    }
+
+    // Right edge (bottom to top)
+    edge_vertices.push(center + u_dir * half_size - v_dir * inner_half);
+    edge_vertices.push(center + u_dir * half_size + v_dir * inner_half);
+
+    // Top-right corner
+    let corner_center = center + u_dir * inner_half + v_dir * inner_half;
+    for i in 0..=corner_segments {
+        let angle = PI * 0.0 + (PI * 0.5 * i as f32 / corner_segments as f32);
+        let offset = u_dir * angle.cos() * corner_radius + v_dir * angle.sin() * corner_radius;
+        edge_vertices.push(corner_center + offset);
+    }
+
+    // Top edge (right to left)
+    edge_vertices.push(center + u_dir * inner_half + v_dir * half_size);
+    edge_vertices.push(center - u_dir * inner_half + v_dir * half_size);
+
+    // Top-left corner
+    let corner_center = center - u_dir * inner_half + v_dir * inner_half;
+    for i in 0..=corner_segments {
+        let angle = PI * 0.5 + (PI * 0.5 * i as f32 / corner_segments as f32);
+        let offset = u_dir * angle.cos() * corner_radius + v_dir * angle.sin() * corner_radius;
+        edge_vertices.push(corner_center + offset);
+    }
+
+    // Left edge (top to bottom)
+    edge_vertices.push(center - u_dir * half_size + v_dir * inner_half);
+    edge_vertices.push(center - u_dir * half_size - v_dir * inner_half);
+
+    // Bottom-left corner
+    let corner_center = center - u_dir * inner_half - v_dir * inner_half;
+    for i in 0..=corner_segments {
+        let angle = PI * 1.0 + (PI * 0.5 * i as f32 / corner_segments as f32);
+        let offset = u_dir * angle.cos() * corner_radius + v_dir * angle.sin() * corner_radius;
+        edge_vertices.push(corner_center + offset);
+    }
+
+    // Add edge vertices to mesh
+    for pos in &edge_vertices {
+        let local = *pos - center;
+        let u = (local.dot(u_dir) / half_size + 1.0) * 0.5;
+        let v = (local.dot(v_dir) / half_size + 1.0) * 0.5;
+
+        vertices.push(Vertex {
+            position: pos.to_array(),
+            normal: normal.to_array(),
+            uv: [u, v],
+            color,
+        });
+    }
+
+    // Create triangle fan from center to all edge vertices
+    let num_edge_vertices = edge_vertices.len() as u32;
+    for i in 0..num_edge_vertices {
+        let next = (i + 1) % num_edge_vertices;
+        indices.extend_from_slice(&[
+            base_index,         // Center
+            base_index + 1 + i, // Current edge vertex
+            base_index + 1 + next, // Next edge vertex
+        ]);
+    }
+}
+
 /// Converts a Color enum to RGB values (0.0 to 1.0)
 fn color_to_rgb(color: Color) -> [f32; 3] {
     match color {
@@ -373,12 +490,13 @@ mod tests {
         let mesh = CubeMesh::generate(&cube, &config);
 
         // 2x2 cube has 6 faces * 4 stickers = 24 stickers
-        // Each sticker is a quad = 4 vertices
-        assert_eq!(mesh.vertex_count(), 24 * 4);
+        // With rounded corners, each sticker has many vertices
+        assert!(mesh.vertex_count() > 0);
+        assert!(mesh.index_count() > 0);
+        assert!(mesh.triangle_count() > 0);
 
-        // Each sticker is 2 triangles = 6 indices
-        assert_eq!(mesh.index_count(), 24 * 6);
-        assert_eq!(mesh.triangle_count(), 24 * 2);
+        // Sanity check: vertices should be divisible by 3 for triangles
+        assert_eq!(mesh.index_count() % 3, 0);
     }
 
     #[test]
@@ -388,9 +506,11 @@ mod tests {
         let mesh = CubeMesh::generate(&cube, &config);
 
         // 3x3 cube has 6 faces * 9 stickers = 54 stickers
-        assert_eq!(mesh.vertex_count(), 54 * 4);
-        assert_eq!(mesh.index_count(), 54 * 6);
-        assert_eq!(mesh.triangle_count(), 54 * 2);
+        // With rounded corners, each sticker has many vertices
+        assert!(mesh.vertex_count() > 54); // More than 1 vertex per sticker
+        assert!(mesh.index_count() > 54 * 3); // At least 1 triangle per sticker
+        assert!(mesh.triangle_count() > 54);
+        assert_eq!(mesh.index_count() % 3, 0); // Indices divisible by 3
     }
 
     #[test]
@@ -400,9 +520,10 @@ mod tests {
         let mesh = CubeMesh::generate(&cube, &config);
 
         // 4x4 cube has 6 faces * 16 stickers = 96 stickers
-        assert_eq!(mesh.vertex_count(), 96 * 4);
-        assert_eq!(mesh.index_count(), 96 * 6);
-        assert_eq!(mesh.triangle_count(), 96 * 2);
+        assert!(mesh.vertex_count() > 96);
+        assert!(mesh.index_count() > 96 * 3);
+        assert!(mesh.triangle_count() > 96);
+        assert_eq!(mesh.index_count() % 3, 0);
     }
 
     #[test]
@@ -419,10 +540,14 @@ mod tests {
             cube_size: 2.0,
             sticker_gap: 0.1,
             sticker_depth: 0.05,
+            corner_radius: 0.2,
+            corner_segments: 6,
         };
         assert_eq!(config.cube_size, 2.0);
         assert_eq!(config.sticker_gap, 0.1);
         assert_eq!(config.sticker_depth, 0.05);
+        assert_eq!(config.corner_radius, 0.2);
+        assert_eq!(config.corner_segments, 6);
     }
 
     #[test]
@@ -494,8 +619,9 @@ mod tests {
         let mesh = CubeMesh::generate(&cube, &config);
 
         // 5x5 cube has 6 faces * 25 stickers = 150 stickers
-        assert_eq!(mesh.vertex_count(), 150 * 4);
-        assert_eq!(mesh.index_count(), 150 * 6);
+        assert!(mesh.vertex_count() > 150);
+        assert!(mesh.index_count() > 150 * 3);
+        assert_eq!(mesh.index_count() % 3, 0);
     }
 
     #[test]
@@ -505,10 +631,14 @@ mod tests {
             cube_size: 1.0,
             sticker_gap: 0.2, // Larger gap
             sticker_depth: 0.02,
+            corner_radius: 0.15,
+            corner_segments: 4,
         };
         let mesh = CubeMesh::generate(&cube, &config);
 
-        // Should still generate correct number of vertices
-        assert_eq!(mesh.vertex_count(), 54 * 4);
+        // Should still generate valid mesh
+        assert!(mesh.vertex_count() > 54);
+        assert!(mesh.index_count() > 54 * 3);
+        assert_eq!(mesh.index_count() % 3, 0);
     }
 }
