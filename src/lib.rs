@@ -4,3 +4,4 @@
 //! including cube state representation, solving algorithms, and more.
 
 pub mod cube;
+pub mod renderer;

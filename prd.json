@@ -148,10 +148,11 @@
           "Handle resize events",
           "Works on web (WebGPU) and native"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/renderer/wgpu_context.rs"
+          "src/renderer/wgpu_context.rs",
+          "src/renderer/mod.rs"
         ]
       },
       "R2.2": {
@@ -838,8 +839,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 9,
-    "tests_passing": 9,
-    "completion_percentage": 16.07
+    "implemented": 10,
+    "tests_passing": 10,
+    "completion_percentage": 17.86
   }
 }
