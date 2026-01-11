@@ -4,6 +4,19 @@
 //! to different screen sizes while maintaining proper aspect ratio.
 
 use dioxus::prelude::*;
+use crate::cube::{Cube, FaceName, Color};
+
+/// Convert Color enum to CSS color string
+fn color_to_css(color: Color) -> &'static str {
+    match color {
+        Color::White => "#FFFFFF",
+        Color::Yellow => "#FFD500",
+        Color::Red => "#FF0000",
+        Color::Orange => "#FF8800",
+        Color::Blue => "#0000FF",
+        Color::Green => "#00FF00",
+    }
+}
 
 /// Configuration for responsive sizing behavior
 #[derive(Clone, Debug, PartialEq)]
@@ -123,6 +136,9 @@ impl ResponsiveDimensions {
 /// Props for the Cube3D component
 #[derive(Props, Clone, PartialEq)]
 pub struct Cube3DProps {
+    /// The cube to display
+    pub cube: Cube,
+
     /// Viewport width (from window resize events)
     #[props(default = 800.0)]
     pub viewport_width: f32,
@@ -141,11 +157,16 @@ pub struct Cube3DProps {
 /// This component automatically sizes the cube display based on the viewport
 /// dimensions, ensuring it works well on all screen sizes from mobile to desktop.
 ///
-/// # Acceptance Criteria
+/// # Acceptance Criteria (R2.8)
 /// - Cube fills available space appropriately
 /// - Maintains aspect ratio
 /// - Works on mobile screens (320px+)
 /// - Works on large desktop screens (1920px)
+///
+/// # Acceptance Criteria (R3.4)
+/// - 2D changes immediately reflect in 3D
+/// - 3D changes immediately reflect in 2D
+/// - No lag or desync
 #[component]
 pub fn Cube3D(props: Cube3DProps) -> Element {
     // Calculate responsive dimensions
@@ -155,6 +176,9 @@ pub fn Cube3D(props: Cube3DProps) -> Element {
         &props.config,
     );
 
+    let cube_size = props.cube.size();
+    let sticker_size = dimensions.cube_width / (cube_size as f32 * 1.5);
+
     rsx! {
         div {
             class: "cube-3d-container",
@@ -162,11 +186,51 @@ pub fn Cube3D(props: Cube3DProps) -> Element {
             div {
                 class: "cube-3d-viewport",
                 style: "{dimensions.cube_style()}",
-                // Placeholder for actual 3D rendering
-                // This will be replaced with WGPU canvas integration
+                // Isometric 3D view showing three visible faces (Front, Right, Top)
                 div {
-                    style: "width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;",
-                    "3D Cube Render Area"
+                    style: "width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;",
+
+                    // Isometric cube visualization
+                    div {
+                        style: "position: relative; transform: rotateX(-30deg) rotateY(30deg); transform-style: preserve-3d;",
+
+                        // Front face (F)
+                        {render_face(&props.cube, FaceName::F, sticker_size, "translateZ({}px)", sticker_size * cube_size as f32 / 2.0)}
+
+                        // Right face (R)
+                        {render_face(&props.cube, FaceName::R, sticker_size, "rotateY(90deg) translateZ({}px)", sticker_size * cube_size as f32 / 2.0)}
+
+                        // Top face (U)
+                        {render_face(&props.cube, FaceName::U, sticker_size, "rotateX(90deg) translateZ({}px)", sticker_size * cube_size as f32 / 2.0)}
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Render a single face of the cube
+fn render_face(cube: &Cube, face: FaceName, sticker_size: f32, transform_template: &str, transform_value: f32) -> Element {
+    let size = cube.size();
+    let transform = transform_template.replace("{}", &transform_value.to_string());
+    let gap = sticker_size * 0.08;
+    let face_data = cube.get_face(face);
+
+    rsx! {
+        div {
+            style: "position: absolute; display: grid; grid-template-columns: repeat({size}, {sticker_size}px); grid-template-rows: repeat({size}, {sticker_size}px); gap: {gap}px; transform: {transform}; backface-visibility: hidden;",
+            for row in 0..size {
+                for col in 0..size {
+                    {
+                        let color = face_data.get(row, col);
+                        let css_color = color_to_css(color);
+                        rsx! {
+                            div {
+                                key: "{face:?}-{row}-{col}",
+                                style: "width: {sticker_size}px; height: {sticker_size}px; background-color: {css_color}; border: 1px solid rgba(0,0,0,0.2); border-radius: 2px; box-shadow: inset 0 0 4px rgba(255,255,255,0.3);",
+                            }
+                        }
+                    }
                 }
             }
         }
