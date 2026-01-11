@@ -1,0 +1,13 @@
+//! Core cube logic module
+//!
+//! This module contains all the core Rubik's cube logic including:
+//! - state: Cube state representation for NxN cubes
+//! - moves: Face rotation operations
+//! - notation: Move notation parser
+//! - validation: Cube state validation
+//! - scramble: Scramble generator
+
+pub mod state;
+
+// Re-export main types
+pub use state::{Color, Cube, Face};

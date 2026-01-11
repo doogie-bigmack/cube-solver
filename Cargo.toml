@@ -1,0 +1,18 @@
+[package]
+name = "rubiks-cube-solver"
+version = "0.1.0"
+authors = ["Rubik's Cube Solver Team"]
+edition = "2021"
+description = "Educational Rubik's cube solver app for kids supporting 2x2 to 20x20 cubes"
+
+[dependencies]
+dioxus = { version = "0.6", features = ["desktop", "web"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+
+[dev-dependencies]
+
+[lib]
+name = "rubiks_cube_solver"
+path = "src/lib.rs"
