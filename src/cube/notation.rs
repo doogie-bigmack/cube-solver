@@ -131,7 +131,7 @@ fn parse_wide_move(input: &str) -> Result<ParsedMove, NotationError> {
 /// Parse a basic move, slice move, or rotation
 fn parse_basic_move(input: &str) -> Result<ParsedMove, NotationError> {
     // Handle lowercase x, y, z rotations
-    let normalized = if input.len() >= 1 {
+    let normalized = if !input.is_empty() {
         let first = input.chars().next().unwrap();
         if first == 'x' || first == 'y' || first == 'z' {
             // Keep x, y, z lowercase for now, will uppercase later

@@ -1086,7 +1086,7 @@ impl Cube {
     /// Panics if the cube is even-sized (no middle slice exists)
     fn move_m(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("M slice moves only work on odd-sized cubes");
         }
 
@@ -1112,7 +1112,7 @@ impl Cube {
     /// M' slice move: Middle slice counter-clockwise
     fn move_m_prime(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("M slice moves only work on odd-sized cubes");
         }
 
@@ -1142,7 +1142,7 @@ impl Cube {
     /// Panics if the cube is even-sized (no middle slice exists)
     fn move_e(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("E slice moves only work on odd-sized cubes");
         }
 
@@ -1168,7 +1168,7 @@ impl Cube {
     /// E' slice move: Equator slice counter-clockwise
     fn move_e_prime(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("E slice moves only work on odd-sized cubes");
         }
 
@@ -1198,7 +1198,7 @@ impl Cube {
     /// Panics if the cube is even-sized (no middle slice exists)
     fn move_s(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("S slice moves only work on odd-sized cubes");
         }
 
@@ -1224,7 +1224,7 @@ impl Cube {
     /// S' slice move: Standing slice counter-clockwise
     fn move_s_prime(&mut self) {
         let n = self.size();
-        if n % 2 == 0 {
+        if n.is_multiple_of(2) {
             panic!("S slice moves only work on odd-sized cubes");
         }
 

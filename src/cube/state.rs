@@ -46,7 +46,7 @@ pub struct Face {
 impl Face {
     /// Creates a new face with all stickers of the given color
     pub fn new(size: usize, color: Color) -> Self {
-        assert!(size >= 2 && size <= 20, "Face size must be between 2 and 20");
+        assert!((2..=20).contains(&size), "Face size must be between 2 and 20");
         Self {
             stickers: vec![vec![color; size]; size],
             size,
@@ -216,7 +216,7 @@ impl Cube {
     /// # Panics
     /// Panics if size is not between 2 and 20
     pub fn new(size: usize) -> Self {
-        assert!(size >= 2 && size <= 20, "Cube size must be between 2 and 20");
+        assert!((2..=20).contains(&size), "Cube size must be between 2 and 20");
         Self {
             size,
             up: Face::new(size, Color::White),
