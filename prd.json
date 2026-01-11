@@ -164,8 +164,8 @@
           "Proper normals for lighting",
           "Gap between stickers"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/cube_mesh.rs"
         ]
@@ -839,8 +839,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 10,
-    "tests_passing": 10,
-    "completion_percentage": 17.86
+    "implemented": 11,
+    "tests_passing": 11,
+    "completion_percentage": 19.64
   }
 }
