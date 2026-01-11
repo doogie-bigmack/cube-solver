@@ -6,10 +6,12 @@
 //! - Camera controls
 //! - Animations
 
+pub mod animations;
 pub mod camera;
 pub mod cube_mesh;
 pub mod wgpu_context;
 
+pub use animations::{AnimationQueue, EasingFunction, RotationAnimation, RotationFace};
 pub use camera::{Camera, OrbitController};
 pub use cube_mesh::{CubeMesh, MeshConfig, Vertex};
 pub use wgpu_context::{WgpuContext, WgpuContextConfig};
