@@ -8,6 +8,8 @@
 //! - scramble: Scramble generator
 
 pub mod state;
+pub mod moves;
 
 // Re-export main types
-pub use state::{Color, Cube, Face};
+pub use state::{Color, Cube, Face, FaceName};
+pub use moves::Move;
