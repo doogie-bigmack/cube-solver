@@ -234,10 +234,11 @@
           "Highlight pieces being affected by current tutorial step",
           "Configurable highlight color"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/renderer/highlight.rs"
+          "src/renderer/highlight.rs",
+          "tests/highlight_tests.rs"
         ]
       },
       "R2.8": {
@@ -840,8 +841,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 15,
-    "tests_passing": 15,
-    "completion_percentage": 26.79
+    "implemented": 16,
+    "tests_passing": 16,
+    "completion_percentage": 28.57
   }
 }
