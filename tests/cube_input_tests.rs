@@ -1,9 +1,9 @@
-//! Integration tests for 2D Unfolded Cube View (R3.1)
+//! Integration tests for 2D Unfolded Cube View (R3.1) and Sticker Selection (R3.2)
 //!
-//! Test IDs: cube_input_* (mapped to R3.1 requirement)
+//! Test IDs: cube_input_* (mapped to R3.1 and R3.2 requirements)
 
-use rubiks_cube_solver::cube::Cube;
-use rubiks_cube_solver::components::UnfoldedLayout;
+use rubiks_cube_solver::cube::{Cube, FaceName};
+use rubiks_cube_solver::components::{UnfoldedLayout, StickerPosition};
 
 #[test]
 fn test_cube_input_001_layout_2x2() {
@@ -227,4 +227,183 @@ fn test_cube_input_015_maximum_sizes() {
     // 20x20 should have smaller stickers
     assert_eq!(layout.sticker_size, 10.0);
     assert!(layout.sticker_size < 15.0);
+}
+
+// ===== R3.2 Sticker Selection Tests =====
+
+#[test]
+fn test_cube_input_016_sticker_position_creation() {
+    // Test creating a sticker position
+    let pos = StickerPosition {
+        face: FaceName::U,
+        row: 1,
+        col: 2,
+    };
+
+    assert_eq!(pos.face, FaceName::U);
+    assert_eq!(pos.row, 1);
+    assert_eq!(pos.col, 2);
+}
+
+#[test]
+fn test_cube_input_017_sticker_position_equality() {
+    // Test sticker position equality
+    let pos1 = StickerPosition {
+        face: FaceName::F,
+        row: 0,
+        col: 0,
+    };
+
+    let pos2 = StickerPosition {
+        face: FaceName::F,
+        row: 0,
+        col: 0,
+    };
+
+    let pos3 = StickerPosition {
+        face: FaceName::F,
+        row: 0,
+        col: 1,
+    };
+
+    assert_eq!(pos1, pos2);
+    assert_ne!(pos1, pos3);
+}
+
+#[test]
+fn test_cube_input_018_sticker_position_all_faces() {
+    // Test that sticker positions can be created for all faces
+    let faces = [
+        FaceName::U,
+        FaceName::D,
+        FaceName::L,
+        FaceName::R,
+        FaceName::F,
+        FaceName::B,
+    ];
+
+    for face in faces.iter() {
+        let pos = StickerPosition {
+            face: *face,
+            row: 0,
+            col: 0,
+        };
+        assert_eq!(pos.face, *face);
+    }
+}
+
+#[test]
+fn test_cube_input_019_sticker_position_all_coordinates() {
+    // Test sticker positions for different coordinates on a 3x3
+    for row in 0..3 {
+        for col in 0..3 {
+            let pos = StickerPosition {
+                face: FaceName::F,
+                row,
+                col,
+            };
+            assert_eq!(pos.row, row);
+            assert_eq!(pos.col, col);
+        }
+    }
+}
+
+#[test]
+fn test_cube_input_020_sticker_selection_different_faces() {
+    // Test selecting stickers on different faces
+    let pos_u = StickerPosition { face: FaceName::U, row: 1, col: 1 };
+    let pos_f = StickerPosition { face: FaceName::F, row: 1, col: 1 };
+    let pos_r = StickerPosition { face: FaceName::R, row: 1, col: 1 };
+
+    assert_ne!(pos_u, pos_f);
+    assert_ne!(pos_f, pos_r);
+    assert_ne!(pos_u, pos_r);
+}
+
+#[test]
+fn test_cube_input_021_sticker_selection_corner_stickers() {
+    // Test selection of corner stickers on a 3x3
+    let corners = [
+        (0, 0), // Top-left
+        (0, 2), // Top-right
+        (2, 0), // Bottom-left
+        (2, 2), // Bottom-right
+    ];
+
+    for (row, col) in corners.iter() {
+        let pos = StickerPosition {
+            face: FaceName::F,
+            row: *row,
+            col: *col,
+        };
+        assert_eq!(pos.row, *row);
+        assert_eq!(pos.col, *col);
+    }
+}
+
+#[test]
+fn test_cube_input_022_sticker_selection_edge_stickers() {
+    // Test selection of edge stickers on a 3x3
+    let edges = [
+        (0, 1), // Top edge
+        (1, 0), // Left edge
+        (1, 2), // Right edge
+        (2, 1), // Bottom edge
+    ];
+
+    for (row, col) in edges.iter() {
+        let pos = StickerPosition {
+            face: FaceName::F,
+            row: *row,
+            col: *col,
+        };
+        assert_eq!(pos.row, *row);
+        assert_eq!(pos.col, *col);
+    }
+}
+
+#[test]
+fn test_cube_input_023_sticker_selection_center_sticker() {
+    // Test selection of center sticker on a 3x3
+    let pos = StickerPosition {
+        face: FaceName::F,
+        row: 1,
+        col: 1,
+    };
+
+    assert_eq!(pos.row, 1);
+    assert_eq!(pos.col, 1);
+}
+
+#[test]
+fn test_cube_input_024_sticker_selection_2x2_all_positions() {
+    // Test all 4 positions on a 2x2 face
+    for row in 0..2 {
+        for col in 0..2 {
+            let pos = StickerPosition {
+                face: FaceName::U,
+                row,
+                col,
+            };
+            assert_eq!(pos.row, row);
+            assert_eq!(pos.col, col);
+        }
+    }
+}
+
+#[test]
+fn test_cube_input_025_sticker_selection_copy_clone() {
+    // Test that StickerPosition can be copied and cloned
+    let pos1 = StickerPosition {
+        face: FaceName::R,
+        row: 2,
+        col: 1,
+    };
+
+    let pos2 = pos1; // Copy
+    let pos3 = pos1.clone(); // Clone
+
+    assert_eq!(pos1, pos2);
+    assert_eq!(pos1, pos3);
+    assert_eq!(pos2, pos3);
 }

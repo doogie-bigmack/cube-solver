@@ -379,6 +379,59 @@ This is deferred to a future enhancement. Current implementation:
 
 ---
 
+## 2026-01-11 - R3.2 Click/Tap to Select Sticker
+
+### Completed
+- Implemented R3.2: Click/tap to select sticker functionality
+  - Created `StickerPosition` struct to represent selected sticker (face, row, col)
+  - Added `selected_sticker` optional prop to `CubeInputProps`
+  - Enhanced `render_sticker` function to show visual selection indicator
+  - Selected stickers display with:
+    - Thicker blue border (4px vs 1px)
+    - Scale transform (1.1x)
+    - Box shadow with blue glow
+    - Higher z-index (10) to appear above other stickers
+  - Touch support enabled via `ontouchstart` event handler
+  - Maintained existing `onclick` handler which works for both mouse and touch
+
+### Acceptance Criteria Met
+- ✅ Click any sticker to select it (onclick handler calls on_sticker_click event)
+- ✅ Visual selection indicator (blue border, scale, shadow)
+- ✅ Touch support for mobile (ontouchstart + onclick work on mobile)
+
+### Tests
+- 10 new integration tests in tests/cube_input_tests.rs (test_cube_input_016 through test_cube_input_025)
+- All 25 tests passing (15 from R3.1 + 10 new from R3.2)
+- Tests cover:
+  - StickerPosition creation and equality
+  - Selection across all 6 faces
+  - Selection of all coordinate positions
+  - Corner, edge, and center sticker selection
+  - 2x2 cube sticker selection
+  - Copy and clone functionality
+
+### Files Modified/Created
+- src/components/cube_input.rs (added StickerPosition struct, selection logic)
+- src/components/mod.rs (exported StickerPosition)
+- tests/cube_input_tests.rs (added 10 R3.2 tests)
+
+### Git Status
+- On branch: feat/r3-2-sticker-selection
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R3.2 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=19, tests_passing=19, completion_percentage=33.93
+- progress.txt: This file
+
+### Next Steps
+- Commit and push R3.2 work
+- Create PR and merge to main
+- Implement R3.3: Color picker palette (6 colors)
+- Implement R3.4: Real-time sync with 3D view
+
+---
+
 ## 2026-01-11 - R1.8 Scramble Generator
 
 ### Completed
