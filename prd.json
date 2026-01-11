@@ -178,10 +178,11 @@
           "Constrain to reasonable angles",
           "Touch support for mobile"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/renderer/camera.rs"
+          "src/renderer/camera.rs",
+          "tests/camera_tests.rs"
         ]
       },
       "R2.4": {
@@ -839,8 +840,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 11,
-    "tests_passing": 11,
-    "completion_percentage": 19.64
+    "implemented": 12,
+    "tests_passing": 12,
+    "completion_percentage": 21.43
   }
 }
