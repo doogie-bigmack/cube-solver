@@ -4445,3 +4445,124 @@ Future integration points:
 - Or work on R5.3-R5.5 (4x4+ solvers) - advanced solving algorithms
 - Or work on R7.5-R7.6 (Mobile builds) - Android and iOS support
 
+
+---
+
+## 2026-01-12 - R4.6 Handle Lighting Variations - COMPLETE
+
+### Status
+R4.6 is now COMPLETE. Comprehensive lighting analysis and adaptive threshold system implemented.
+
+### Completed Features
+- **Lighting Quality Analysis**:
+  - Analyzes image brightness (average value from 0-1)
+  - Calculates brightness variance to detect uneven lighting
+  - Categorizes lighting into 5 quality levels: Excellent, Good, Adequate, Poor, VeryPoor
+  - Detects specific issues: too dark, too bright (overexposed), uneven
+
+- **User-Friendly Warning System**:
+  - `LightingAnalysis::get_warning_message()` provides actionable feedback
+  - No warnings for Excellent/Good lighting
+  - Helpful suggestions for Adequate lighting (e.g., "move to brighter area")
+  - Clear warnings for Poor lighting (e.g., "too dark, please move to brighter area!")
+  - Urgent warnings for VeryPoor lighting
+
+- **Adaptive Threshold System**:
+  - `apply_adaptive_thresholds()` adjusts color detection config based on lighting
+  - **Dark conditions**: Lowers brightness/value thresholds, more lenient saturation
+  - **Bright conditions**: Raises brightness thresholds, stricter saturation
+  - **Uneven lighting**: Expands hue ranges by ±5° for more tolerance
+  - Suggested brightness adjustment factor calculated automatically
+
+- **Main Detection Function**:
+  - `detect_colors_with_lighting_adaptation()` combines analysis + adaptation + detection
+  - Returns both detected colors AND lighting analysis
+  - Single function call provides full workflow
+
+### Acceptance Criteria Met
+- ✅ Work in various lighting conditions (adaptive thresholds adjust automatically)
+- ✅ Detect and warn about poor lighting (5-level quality assessment with warnings)
+- ✅ Adaptive thresholds (dark/bright/uneven conditions handled)
+
+### Tests
+- 13 new unit tests in src/camera/color_detect.rs (all passing)
+- 10 new integration tests in tests/lighting_tests.rs (all passing)
+- Total: 23 tests covering lighting functionality
+- All 26 color detection unit tests passing (includes 13 new lighting tests)
+- Tests cover:
+  - test_analyze_lighting_good_conditions ✅
+  - test_analyze_lighting_too_dark ✅
+  - test_analyze_lighting_too_bright ✅
+  - test_analyze_lighting_uneven ✅
+  - test_lighting_warning_messages ✅
+  - test_apply_adaptive_thresholds_dark ✅
+  - test_apply_adaptive_thresholds_bright ✅
+  - test_apply_adaptive_thresholds_uneven ✅
+  - test_detect_colors_with_lighting_adaptation ✅
+  - test_lighting_quality_ordering ✅
+  - Plus 10 comprehensive integration tests
+
+### Files Modified/Created
+- src/camera/color_detect.rs (added ~400 lines + 13 tests)
+  - Added LightingQuality enum (5 levels)
+  - Added LightingAnalysis struct with full metrics
+  - Added analyze_lighting() function
+  - Added apply_adaptive_thresholds() function
+  - Added detect_colors_with_lighting_adaptation() function
+  - Added get_warning_message() method
+- tests/lighting_tests.rs (NEW - 10 integration tests, 340+ lines)
+  - test_lighting_001_excellent_conditions
+  - test_lighting_002_dark_conditions_warning
+  - test_lighting_003_bright_conditions_warning
+  - test_lighting_004_uneven_lighting_warning
+  - test_lighting_005_adaptive_thresholds_work
+  - test_lighting_006_detection_with_adaptation
+  - test_lighting_007_suggested_brightness_adjustment
+  - test_lighting_008_variance_calculation
+  - test_lighting_009_no_warning_for_good_conditions
+  - test_lighting_010_adaptive_hue_ranges
+- prd.json: Updated R4.6 implemented=true, tests_passing=true
+- prd.json: Updated summary: 55/60 complete (91.67%)
+
+### Git Status
+- Branch: feat/r4-6-lighting-variations
+- Ready to commit and push
+
+### Implementation Details
+
+**Lighting Analysis Algorithm**:
+1. Convert all pixels to HSV and extract brightness (V channel)
+2. Calculate average brightness and variance
+3. Determine specific issues:
+   - too_dark: avg < 0.25 (VeryPoor if < 0.15)
+   - too_bright: avg > 0.85 (VeryPoor if > 0.92)
+   - uneven: variance > 0.04 (Poor if > 0.06)
+4. Categorize overall quality based on combination of factors
+5. Calculate suggested brightness adjustment (1.0-3.0x for dark, 0.3-1.0x for bright)
+
+**Adaptive Threshold Adjustments**:
+- Dark: white_min_value *= 0.7, min_value_threshold *= 0.5, more lenient saturation
+- Bright: white_min_value *= 1.1, stricter saturation requirements
+- Uneven: expand all hue ranges by 5 degrees
+
+**Quality Levels**:
+- Excellent: variance < 0.02, brightness 0.4-0.7
+- Good: Generally good conditions, minor issues
+- Adequate: Usable but suboptimal (brightness 0.25-0.35 or 0.75-0.85, or uneven)
+- Poor: Significant issues (too dark/bright, or very uneven)
+- VeryPoor: Extremely poor conditions (avg < 0.15 or > 0.92)
+
+### Updated Stats
+- Requirements complete: 55/60 (91.67%)
+- R4 (Camera Scanning): 6/7 complete (R4.1-R4.6 ✅, R4.7 remains)
+- All unit tests passing (26/26 color detection tests)
+- All integration tests passing (10/10 lighting tests)
+- Docker build successful, container running
+
+### Next Steps
+- Commit and push R4.6 work
+- Create PR and merge to main
+- Work on R4.7: Error recovery for failed scans (final R4 requirement)
+- Or work on R7.3: Windows desktop build
+- Or work on R7.4: Linux desktop build
+
