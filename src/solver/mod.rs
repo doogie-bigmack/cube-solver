@@ -3,7 +3,7 @@
 //! This module provides solvers for:
 //! - 2x2 cubes (Depth-limited search)
 //! - 3x3 cubes (Beginner's layer-by-layer method via depth-limited search)
-//! - 4x4+ cubes (Reduction method - centers)
+//! - 4x4+ cubes (Reduction method - centers and edges)
 
 pub mod solution;
 pub mod two_by_two;
@@ -13,4 +13,4 @@ pub mod reduction;
 pub use solution::Solution;
 pub use two_by_two::solve_2x2;
 pub use beginner_3x3::solve_3x3_beginner as solve_3x3;
-pub use reduction::solve_centers;
+pub use reduction::{solve_centers, solve_edges};
