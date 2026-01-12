@@ -4,4 +4,4 @@
 
 pub mod lessons;
 
-pub use lessons::{LessonStep, NotationLesson};
+pub use lessons::{LessonStep, NotationLesson, ColorLessonStep, ColorPair, ColorQuizQuestion, ColorsLesson};
