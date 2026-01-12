@@ -82,9 +82,9 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
     let mut current_move = use_signal(|| 0_usize);
     let mut playback_state = use_signal(|| PlaybackState::Stopped);
     let mut speed = use_signal(|| props.speed);
+    let all_moves = use_signal(|| props.solution.all_moves());
 
-    let all_moves = props.solution.all_moves();
-    let total_moves = all_moves.len();
+    let total_moves = all_moves.read().len();
 
     // Handle play button
     let play = move |_| {
@@ -107,6 +107,49 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
         playback_state.set(PlaybackState::Stopped);
         cube.set(Cube::new(3));
         current_move.set(0);
+    };
+
+    // Handle step forward button
+    let step_forward = move |_| {
+        let current = *current_move.read();
+        let moves = all_moves.read();
+        let total = moves.len();
+        if current < total {
+            // Apply the next move
+            if let Some(move_to_apply) = moves.get(current) {
+                let mut cube_val = cube.read().clone();
+                cube_val.apply_move(*move_to_apply);
+                cube.set(cube_val);
+                current_move.set(current + 1);
+
+                // If we reach the end, mark as completed
+                if current + 1 >= total {
+                    playback_state.set(PlaybackState::Completed);
+                }
+            }
+        }
+    };
+
+    // Handle step backward button
+    let step_backward = move |_| {
+        let current = *current_move.read();
+        if current > 0 {
+            // Rebuild cube state from scratch up to (current - 1) moves
+            let moves = all_moves.read();
+            let mut cube_val = Cube::new(3);
+            for i in 0..(current - 1) {
+                if let Some(move_to_apply) = moves.get(i) {
+                    cube_val.apply_move(*move_to_apply);
+                }
+            }
+            cube.set(cube_val);
+            current_move.set(current - 1);
+
+            // If we were completed, change back to paused
+            if *playback_state.read() == PlaybackState::Completed {
+                playback_state.set(PlaybackState::Paused);
+            }
+        }
     };
 
     // Handle speed change
@@ -141,7 +184,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
             div {
                 class: "playback-controls",
-                style: "display: flex; gap: 10px; margin-bottom: 15px;",
+                style: "display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;",
 
                 button {
                     class: "btn btn-play",
@@ -165,6 +208,22 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
                     onclick: stop,
                     disabled: state == PlaybackState::Stopped,
                     "Stop"
+                }
+
+                button {
+                    class: "btn btn-step-back",
+                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px;",
+                    onclick: step_backward,
+                    disabled: current == 0,
+                    "◄ Step Back"
+                }
+
+                button {
+                    class: "btn btn-step-forward",
+                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px;",
+                    onclick: step_forward,
+                    disabled: current >= total_moves,
+                    "Step Forward ►"
                 }
             }
 

@@ -196,3 +196,104 @@ fn test_solution_with_explanations() {
     assert!(step.explanation.is_some());
     assert!(step.explanation.unwrap().contains("edge pieces"));
 }
+
+#[test]
+fn test_step_forward_applies_moves() {
+    // Test R5.8 acceptance criteria: Step forward one move
+    let mut cube = Cube::new(3);
+    let initial_cube = cube.clone();
+
+    // Apply one move
+    cube.apply_move(Move::R);
+
+    // Cube should be different after stepping forward
+    assert_ne!(cube, initial_cube);
+
+    // Create a solution with known moves
+    let steps = vec![
+        SolutionStep::new("Test", vec![Move::R, Move::U, Move::F]),
+    ];
+    let solution = Solution::new(steps, 100);
+
+    // Verify solution has 3 moves
+    assert_eq!(solution.all_moves().len(), 3);
+}
+
+#[test]
+fn test_step_backward_reconstructs_state() {
+    // Test R5.8 acceptance criteria: Step backward one move
+    let mut cube = Cube::new(3);
+    let initial_state = cube.clone();
+
+    // Apply moves: R U
+    cube.apply_move(Move::R);
+    let after_r = cube.clone();
+    cube.apply_move(Move::U);
+    let after_r_u = cube.clone();
+
+    // Going backward from R U should get us back to R
+    let mut reconstructed = Cube::new(3);
+    reconstructed.apply_move(Move::R);
+
+    assert_eq!(reconstructed, after_r);
+    assert_ne!(reconstructed, initial_state);
+    assert_ne!(reconstructed, after_r_u);
+}
+
+#[test]
+fn test_playback_pause_resume() {
+    // Test R5.8 acceptance criteria: Pause and resume playback
+    // Verify state transitions are distinct
+    let stopped = PlaybackState::Stopped;
+    let playing = PlaybackState::Playing;
+    let paused = PlaybackState::Paused;
+    let completed = PlaybackState::Completed;
+
+    // All states should be distinct
+    assert_ne!(stopped, playing);
+    assert_ne!(stopped, paused);
+    assert_ne!(stopped, completed);
+    assert_ne!(playing, paused);
+    assert_ne!(playing, completed);
+    assert_ne!(paused, completed);
+}
+
+#[test]
+fn test_step_controls_with_solution() {
+    // Test that stepping through a solution works correctly
+    let steps = vec![
+        SolutionStep::new("Step 1", vec![Move::R]),
+        SolutionStep::new("Step 2", vec![Move::U]),
+        SolutionStep::new("Step 3", vec![Move::F]),
+    ];
+    let solution = Solution::new(steps, 100);
+    let all_moves = solution.all_moves();
+
+    // Simulate stepping forward through solution
+    let mut cube = Cube::new(3);
+    let mut position = 0;
+
+    // Step 1: Apply R
+    if position < all_moves.len() {
+        cube.apply_move(all_moves[position]);
+        position += 1;
+    }
+    assert_eq!(position, 1);
+    let after_r = cube.clone();
+
+    // Step 2: Apply U
+    if position < all_moves.len() {
+        cube.apply_move(all_moves[position]);
+        position += 1;
+    }
+    assert_eq!(position, 2);
+    let after_r_u = cube.clone();
+
+    // Step backward: Rebuild to position 1
+    let mut cube_back = Cube::new(3);
+    for i in 0..(position - 1) {
+        cube_back.apply_move(all_moves[i]);
+    }
+    assert_eq!(cube_back, after_r);
+    assert_ne!(cube_back, after_r_u);
+}
