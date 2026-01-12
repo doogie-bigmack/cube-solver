@@ -582,10 +582,13 @@
           "Explain prime and double moves",
           "Interactive examples"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/tutorial/lessons/notation.rs"
+          "src/tutorial/lessons/notation.rs",
+          "src/tutorial/lessons/mod.rs",
+          "src/tutorial/mod.rs",
+          "tests/notation_lesson_tests.rs"
         ]
       },
       "R6.2": {
@@ -861,8 +864,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 37,
-    "tests_passing": 37,
-    "completion_percentage": 66.07
+    "implemented": 38,
+    "tests_passing": 38,
+    "completion_percentage": 67.86
   }
 }

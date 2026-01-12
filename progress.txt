@@ -2606,3 +2606,98 @@ Touch support tested with:
   - Touch input is now ready for mobile platforms
 - Or continue with R4.x (Camera scanning) or R6.x (Tutorial system)
 
+
+
+---
+
+## 2026-01-11 - R6.1 Beginner Lesson: Cube Notation - COMPLETE
+
+### Status
+R6.1 is now COMPLETE. Comprehensive notation lesson with kid-friendly explanations implemented and tested.
+
+### Completed Features
+- Created tutorial module structure (src/tutorial/)
+- Implemented NotationLesson with 11 comprehensive steps:
+  1. Introduction to cube notation
+  2. Explanation of six face names (R, L, U, D, F, B)
+  3-8. Individual face explanations with examples (R, L, U, D, F, B)
+  9. Prime moves explanation (R', L', etc.)
+  10. Double moves explanation (R2, L2, etc.)
+  11. Practice step with "sexy move" example
+- Each step includes:
+  - Title
+  - Detailed description
+  - Kid-friendly explanation (different from description)
+  - Optional example move
+- Full API for accessing lesson steps
+- Clone and Default trait implementations
+
+### Acceptance Criteria Met
+- ✅ Explain R, L, U, D, F, B (individual steps for each face)
+- ✅ Explain prime and double moves (dedicated steps with examples)
+- ✅ Interactive examples (each face has Move example, ready for UI integration)
+
+### Tests
+- 9 unit tests in src/tutorial/lessons/notation.rs (all passing)
+- 20 integration tests in tests/notation_lesson_tests.rs (all passing)
+- Total: 29 tests covering notation lesson functionality
+- All 222 library tests passing ✅
+
+### Test Coverage
+Integration tests cover all requirements:
+- test_notation_lesson_001_has_all_steps: Verify 11 steps ✅
+- test_notation_lesson_002_intro_step: Introduction content ✅
+- test_notation_lesson_003_all_faces_have_steps: All 6 faces covered ✅
+- test_notation_lesson_004-009: Individual face examples (R,L,U,D,F,B) ✅
+- test_notation_lesson_010_prime_moves: Prime move explanation ✅
+- test_notation_lesson_011_double_moves: Double move explanation ✅
+- test_notation_lesson_012_practice_step: Practice exercises ✅
+- test_notation_lesson_013-014: Kid-friendly text quality ✅
+- test_notation_lesson_015-017: Cloning and traits ✅
+- test_notation_lesson_018_logical_order: Step ordering ✅
+- test_notation_lesson_019_get_step_bounds: Boundary conditions ✅
+- test_notation_lesson_020_valid_moves: Move validation ✅
+
+### Files Modified/Created
+- src/tutorial/lessons/notation.rs (NEW - 250+ lines with full implementation + 9 tests)
+  - LessonStep struct
+  - NotationLesson struct with 11 steps
+  - Factory methods for each step
+  - Full API methods
+- src/tutorial/lessons/mod.rs (NEW - module definition)
+- src/tutorial/mod.rs (NEW - tutorial module root)
+- src/lib.rs (added tutorial module export)
+- tests/notation_lesson_tests.rs (NEW - 20 integration tests)
+
+### Git Status
+- Branch: feat/r6-1-notation-lesson
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R6.1 implemented=true, tests_passing=true
+- prd.json: Updated summary: 38/56 complete (67.86%)
+- progress.txt: This entry
+
+### Updated Stats
+- Requirements complete: 38/56 (67.86%)
+- R6 (Tutorial system): 1/12 complete (R6.1 ✅, missing R6.2-R6.12)
+- Total tests: 242 (222 lib + 20 notation lesson integration)
+
+### Implementation Details
+The notation lesson provides a structured learning path for beginners:
+- **Progressive teaching**: Starts with introduction, moves through each face individually
+- **Dual explanations**: Both technical description and kid-friendly text for each step
+- **Concrete examples**: Each face has an associated Move for demonstration
+- **Practice integration**: Final step includes the famous "sexy move" (R U R' U')
+- **Ready for UI**: Structure designed for easy integration with Dioxus components
+
+The lesson uses age-appropriate language throughout:
+- "Turn the right face clockwise (like turning a doorknob to open a door)"
+- "Imagine a clock on the right side. R means turn it the way clock hands go!"
+- "The apostrophe is like a backwards arrow. R' means turn R backwards instead of forwards!"
+
+### Next Steps
+- Commit and push R6.1 work
+- Create PR and merge to main
+- Work on R6.2 (Beginner lesson: face colors) to continue tutorial system
+- Or work on R6.12 (Kid-friendly UI) to create the visual components for lessons
