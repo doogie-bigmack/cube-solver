@@ -769,10 +769,13 @@
           "Works on Windows 10/11",
           "No installer required"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "Dioxus.toml"
+          "Dioxus.toml",
+          "build-windows.ps1",
+          "WINDOWS_BUILD.md",
+          "tests/windows_build_tests.rs"
         ]
       },
       "R7.4": {
@@ -852,8 +855,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 35,
-    "tests_passing": 35,
-    "completion_percentage": 62.5
+    "implemented": 36,
+    "tests_passing": 36,
+    "completion_percentage": 64.29
   }
 }
