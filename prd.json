@@ -456,7 +456,9 @@
         "implemented": true,
         "tests_passing": true,
         "files": [
-          "src/solver/two_by_two.rs"
+          "src/solver/two_by_two.rs",
+          "src/solver/mod.rs",
+          "tests/solver_2x2_tests.rs"
         ]
       },
       "R5.2": {
