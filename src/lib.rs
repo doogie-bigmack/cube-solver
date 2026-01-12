@@ -5,6 +5,7 @@
 
 pub mod components;
 pub mod cube;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod renderer;
 pub mod solver;
 pub mod state;
