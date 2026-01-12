@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Educational Rubik's cube solver app for kids supporting 2x2 to 20x20 cubes">
+    <meta name="theme-color" content="#667eea">
+    <title>Rubik's Cube Solver & Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        #main {
+            width: 100%;
+            height: 100vh;
+        }
+
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ff6b6b;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>Loading Rubik's Cube Solver...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import init from './pkg/rubiks-cube-solver.js';
+
+        async function run() {
+            try {
+                await init();
+                // Remove loading screen
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.remove();
+                }
+            } catch (e) {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.innerHTML = `
+                        <div class="error">
+                            <h2>Error Loading App</h2>
+                            <p>${e.message || e}</p>
+                            <p style="margin-top: 10px; font-size: 0.9em;">
+                                Please try refreshing the page. If the problem persists,
+                                check the browser console for more details.
+                            </p>
+                        </div>
+                    `;
+                }
+                console.error('Failed to initialize app:', e);
+            }
+        }
+
+        run();
+    </script>
+</body>
+</html>

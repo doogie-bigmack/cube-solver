@@ -6,24 +6,32 @@ edition = "2021"
 description = "Educational Rubik's cube solver app for kids supporting 2x2 to 20x20 cubes"
 
 [dependencies]
-dioxus = { version = "0.7", features = ["desktop"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rand = "0.8"
-wgpu = { version = "22.1", optional = true }
-winit = { version = "0.30", optional = true }
-pollster = { version = "0.3", optional = true }
 glam = "0.30.10"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+dioxus = { version = "0.7", features = ["web"] }
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies.getrandom02]
+package = "getrandom"
+version = "0.2"
+features = ["js"]
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+dioxus = { version = "0.7", features = ["desktop"] }
 getrandom = "0.3"
+wgpu = { version = "22.1", optional = true }
+winit = { version = "0.30", optional = true }
+pollster = { version = "0.3", optional = true }
 
 [features]
-default = ["desktop_3d"]
+default = []
+desktop = ["desktop_3d"]
 desktop_3d = ["wgpu", "winit", "pollster"]
+web = []
 
 [dev-dependencies]
 
