@@ -6,4 +6,5 @@
 pub mod components;
 pub mod cube;
 pub mod renderer;
+pub mod solver;
 pub mod state;
