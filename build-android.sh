@@ -6,6 +6,9 @@ echo "Rubik's Cube Solver - Android Build"
 echo "================================"
 echo ""
 
+# Source Rust environment
+source ~/.cargo/env 2>/dev/null || true
+
 # Check for required tools
 echo "Checking prerequisites..."
 
