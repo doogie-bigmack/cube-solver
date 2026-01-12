@@ -614,10 +614,11 @@
           "Multiple algorithms for different cases",
           "Practice mode"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/tutorial/lessons/cross.rs"
+          "src/tutorial/lessons/cross.rs",
+          "tests/cross_lesson_tests.rs"
         ]
       },
       "R6.4": {
@@ -867,8 +868,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 39,
-    "tests_passing": 39,
-    "completion_percentage": 69.64
+    "implemented": 40,
+    "tests_passing": 40,
+    "completion_percentage": 71.43
   }
 }
