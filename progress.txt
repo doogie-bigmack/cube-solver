@@ -1429,3 +1429,93 @@ replace the current CSS-based visualization, but the sync mechanism will remain 
 - Implement R3.7: Undo/redo color changes
 - Continue with remaining R3 requirements
 
+---
+
+## 2026-01-11 - R3.7 Undo/Redo Color Changes
+
+### Completed
+- Implemented R3.7: Undo/redo color changes
+  - Created `History` struct in src/state/history.rs
+  - Implemented undo/redo stack with configurable maximum size (100 states default)
+  - Added methods: push(), undo(), redo(), can_undo(), can_redo()
+  - Added utility methods: past_len(), future_len(), clear(), reset()
+  - Integrated History into main application state management
+  - Updated CubeControls component with Undo and Redo buttons
+  - Buttons show enabled/disabled state based on history availability
+  - Visual feedback: green for undo, blue for redo, gray when disabled
+  - Modified main.rs to use History instead of direct Cube state
+  - All color changes now pushed to history stack
+  - Reset operation clears history and starts fresh
+
+### Acceptance Criteria Met
+- ✅ Undo last color change (History.undo() works correctly)
+- ✅ Redo undone change (History.redo() works correctly)
+- ✅ Undo/redo history stack (full implementation with 100-state capacity)
+
+### Tests
+- 11 unit tests in src/state/history.rs (all passing)
+- 9 integration tests in tests/history_integration_tests.rs (all passing)
+- All 20 history tests passing
+- Tests cover:
+  - Basic undo/redo operations
+  - History push clears future stack
+  - Multiple changes with full undo/redo
+  - Edge cases (undo/redo when empty)
+  - Maximum history size enforcement
+  - Clear and reset operations
+  - Different cube sizes
+  - Complex state preservation
+  - Long sequences (10+ operations)
+
+### Files Modified/Created
+- src/state/history.rs (NEW - 328 lines with History implementation + 11 tests)
+- src/state/mod.rs (NEW - module definition and exports)
+- src/lib.rs (added state module)
+- src/main.rs (updated to use History instead of direct Cube state)
+- src/components/cube_controls.rs (added undo/redo buttons and handlers)
+- tests/history_integration_tests.rs (NEW - 254 lines with 9 integration tests)
+
+### Git Status
+- On branch: feat/r3-7-undo-redo
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R3.7 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=24, tests_passing=24, completion_percentage=40.0
+- progress.txt: This file
+
+### Implementation Details
+The history system uses a simple but effective three-stack approach:
+- **past**: Stack of previous cube states (for undo)
+- **current**: Current cube state
+- **future**: Stack of undone states (for redo)
+
+When a new change is made:
+1. Current state is pushed to past
+2. New state becomes current
+3. Future is cleared (can't redo after new changes)
+
+Undo operation:
+1. Pops from past
+2. Pushes current to future
+3. Popped state becomes current
+
+Redo operation:
+1. Pops from future
+2. Pushes current to past
+3. Popped state becomes current
+
+The UI provides immediate visual feedback with dynamically styled buttons that
+show enabled (colored gradient) or disabled (gray) state. Maximum history size
+prevents unbounded memory growth.
+
+### Next Steps
+- Commit and push R3.7 work
+- Create PR and merge to main
+- All R3.x (manual color input) requirements now complete! 🎉
+- Consider next priority:
+  - R4.x: Camera scanning (webcam integration)
+  - R5.x: Solving algorithms (2x2, 3x3 Kociemba)
+  - R6.x: Tutorial system
+  - R7.x: Cross-platform builds
+
