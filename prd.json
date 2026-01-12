@@ -696,10 +696,11 @@
           "Edge pairing strategy",
           "Parity algorithm explanation"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/tutorial/lessons/four_by_four.rs"
+          "src/tutorial/lessons/four_by_four.rs",
+          "tests/four_by_four_lesson_tests.rs"
         ]
       },
       "R6.10": {
@@ -875,8 +876,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 47,
-    "tests_passing": 47,
-    "completion_percentage": 78.33
+    "implemented": 48,
+    "tests_passing": 48,
+    "completion_percentage": 80.0
   }
 }
