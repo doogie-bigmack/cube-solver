@@ -6,7 +6,7 @@ FROM rust:1.92 as builder
 
 # Install wasm-pack and other dependencies
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-RUN cargo install dioxus-cli
+RUN cargo install dioxus-cli --version 0.6.3
 
 WORKDIR /app
 
