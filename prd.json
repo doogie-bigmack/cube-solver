@@ -494,8 +494,8 @@
           "Works for 4x4 and larger",
           "Generate move sequence"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/solver/reduction.rs"
         ]
@@ -888,8 +888,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 56,
-    "tests_passing": 56,
-    "completion_percentage": 93.33
+    "implemented": 57,
+    "tests_passing": 57,
+    "completion_percentage": 95.0
   }
 }
