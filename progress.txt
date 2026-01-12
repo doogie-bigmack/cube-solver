@@ -2940,3 +2940,85 @@ The lesson is structured to:
 - Or work on R6.10 (Interactive practice mode) - enhance tutorial system
 - Or work on R4.1 (Camera scanning) - new major feature
 
+
+---
+
+## 2026-01-11 - R6.4 First Layer Corners Tutorial - COMPLETE
+
+### Status
+R6.4 fully implemented with comprehensive first layer corners tutorial.
+
+### Completed Features
+- Created CornersLesson module with 9 comprehensive lesson steps
+- Implemented 6 corner insertion cases/algorithms:
+  - Corner in top with white facing up (R U R')
+  - Corner in top with white facing front (F' U' F)
+  - Corner in top with white facing side
+  - Corner already in bottom correct
+  - Corner in bottom wrong orientation
+  - Corner in bottom wrong position
+- Created 3 practice exercises (simple, medium, advanced)
+- Implemented verify_first_layer() method to check complete first layer
+- All steps include kid-friendly explanations
+
+### Acceptance Criteria Met
+- ✅ Identify corner positions (steps explain how to find and position corners)
+- ✅ Insertion algorithms (6 cases with R U R' and F' U' F algorithms)
+- ✅ Practice mode (3 progressive exercises with hints and solutions)
+
+### Tests
+- 13 unit tests in src/tutorial/lessons/f2l_corners.rs (all passing)
+- 20 integration tests in tests/corners_lesson_tests.rs (all passing)
+- All 33 tests passing
+- Tests cover:
+  - test_corners_001-003: Lesson structure and content
+  - test_corners_004-005: Key algorithms (R U R' and F' U' F)
+  - test_corners_006: Practice exercises
+  - test_corners_007-010: First layer verification
+  - test_corners_011-020: Additional features and edge cases
+
+### Files Modified/Created
+- src/tutorial/lessons/f2l_corners.rs (NEW - 560+ lines with full implementation)
+  - CornersLesson, CornersLessonStep, CornerCase, CornersPracticeExercise
+  - CornerPosition enum (FrontRight, FrontLeft, BackRight, BackLeft)
+  - 9 detailed lesson steps
+  - 6 corner solving cases with algorithms
+  - 3 practice exercises
+  - verify_first_layer() validation method
+  - 13 comprehensive unit tests
+- src/tutorial/lessons/mod.rs (updated to export f2l_corners module)
+- src/tutorial/lessons/cross.rs (fixed Face import for web build compatibility)
+- tests/corners_lesson_tests.rs (NEW - 20 integration tests)
+
+### Implementation Details
+The first layer corners tutorial follows the beginner's method approach:
+- **Two main algorithms**: R U R' (white facing up) and F' U' F (white facing front/side)
+- **Simple workflow**: Find corner → Position above home → Apply algorithm 1-3 times
+- **Kid-friendly language**: "Like scooping ice cream into a cone", "pop it up like toast"
+- **Progressive difficulty**: Simple (1 corner) → Medium (2 corners) → Advanced (4 corners)
+- **Complete verification**: Checks all 9 stickers on white face + top/bottom row of all sides
+
+Key teaching points:
+- Every corner has exactly one home position (based on its 3 colors)
+- Only need 2 algorithms for ALL corners
+- Repetition is key - algorithm might need to be repeated 1-3 times
+- If stuck in bottom, pop it up first then solve normally
+
+### Git Status
+- Branch: feat/r6-4-first-layer-corners
+- Ready to commit and push
+- All tests passing
+- Docker build successful
+
+### Updated Files
+- prd.json: Updated R6.4 implemented=true, tests_passing=true
+- prd.json: Updated summary: 40/60 complete (66.67%)
+- progress.txt: This entry
+
+### Next Steps
+- Commit and push R6.4 work
+- Create PR and merge to main
+- Continue with R6.5: 3x3 tutorial: second layer
+- Or work on R6.10: Interactive practice mode
+- Or work on R6.11: Progress tracking
+

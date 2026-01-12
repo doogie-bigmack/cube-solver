@@ -79,7 +79,7 @@ pub fn ColorPicker(props: ColorPickerProps) -> Element {
 
             // Render all 6 color buttons
             for color in colors {
-                {render_color_button(color, props.selected_color, button_size, props.on_color_select.clone())}
+                {render_color_button(color, props.selected_color, button_size, props.on_color_select)}
             }
         }
     }
@@ -93,7 +93,7 @@ fn render_color_button(
     on_color_select: EventHandler<Color>,
 ) -> Element {
     let color_css = color_to_css(color);
-    let is_selected = selected_color.map_or(false, |sel| sel == color);
+    let is_selected = selected_color == Some(color);
 
     // Add visual indicator for selected color
     let button_style = if is_selected {

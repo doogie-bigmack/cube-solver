@@ -6,6 +6,7 @@
 //! - Practice mode
 
 use crate::cube::{Color, Cube, Move, FaceName};
+use crate::cube::state::Face;
 
 /// Represents a cross edge piece position
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -363,7 +364,7 @@ impl CrossLesson {
         let up_center = up_face.get(1, 1);
 
         // Determine which face to check based on where white center is
-        let (target_face, check_top_or_bottom): (&crate::cube::Face, bool) =
+        let (target_face, check_top_or_bottom): (&Face, bool) =
             if down_center == Color::White {
                 (down_face, false) // white on bottom, check bottom row of sides
             } else if up_center == Color::White {
