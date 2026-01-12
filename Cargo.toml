@@ -6,7 +6,7 @@ edition = "2021"
 description = "Educational Rubik's cube solver app for kids supporting 2x2 to 20x20 cubes"
 
 [dependencies]
-dioxus = "0.7"
+dioxus = { version = "0.7", features = ["desktop"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rand = "0.8"
@@ -17,7 +17,7 @@ glam = "0.30.10"
 getrandom = { version = "0.2", features = ["js"] }
 
 [features]
-default = []
+default = ["desktop_3d"]
 desktop_3d = ["wgpu", "winit", "pollster"]
 
 [dev-dependencies]
