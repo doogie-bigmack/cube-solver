@@ -14,6 +14,7 @@ wgpu = "22.1"
 winit = "0.30"
 pollster = "0.3"
 glam = "0.30.10"
+getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 
