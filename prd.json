@@ -443,6 +443,10 @@
         "files": [
           "src/components/scan_correction.rs"
         ]
+      },
+      "R4_1": {
+        "implemented": true,
+        "tests_passing": true
       }
     },
     "R5_solving_algorithms": {
@@ -876,8 +880,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 48,
-    "tests_passing": 48,
-    "completion_percentage": 80.0
+    "implemented": 49,
+    "tests_passing": 49,
+    "completion_percentage": 81.67
   }
 }
