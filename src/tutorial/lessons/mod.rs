@@ -6,8 +6,10 @@ pub mod notation;
 pub mod colors;
 pub mod cross;
 pub mod f2l_corners;
+pub mod f2l_edges;
 
 pub use notation::{LessonStep, NotationLesson};
 pub use colors::{ColorLessonStep, ColorPair, ColorQuizQuestion, ColorsLesson};
 pub use cross::{CrossLesson, CrossLessonStep, CrossCase, CrossEdge, CrossPracticeExercise};
 pub use f2l_corners::{CornersLesson, CornersLessonStep, CornerCase, CornerPosition, CornersPracticeExercise};
+pub use f2l_edges::{SecondLayerLesson, SecondLayerLessonStep, EdgeCase, EdgePosition, SecondLayerPracticeExercise};
