@@ -4566,3 +4566,111 @@ R4.6 is now COMPLETE. Comprehensive lighting analysis and adaptive threshold sys
 - Or work on R7.3: Windows desktop build
 - Or work on R7.4: Linux desktop build
 
+
+
+---
+
+## 2026-01-12 - R4.7 Error Recovery for Failed Scans - COMPLETE
+
+### Status
+R4.7 is now COMPLETE. Scan correction component with confidence detection and manual correction fully implemented and tested.
+
+### Completed Features
+- **Confidence Scoring System**:
+  - Added `ColorDetectionResult` struct with color and confidence (0.0-1.0)
+  - Implemented `majority_vote_with_confidence()` function
+  - Confidence based on coverage (70%) and dominance (30%)
+  - Added `is_uncertain()` method (confidence < 0.6)
+  - Added `is_reliable()` method (confidence >= 0.8)
+  
+- **Enhanced Color Detection API**:
+  - Added `detect_colors_in_grid_with_confidence()` function
+  - Returns grid of `ColorDetectionResult` with confidence scores
+  - Maintains backward compatibility with existing `detect_colors_in_grid()`
+  
+- **ScanCorrection Component**:
+  - Full Dioxus component for reviewing scanned faces
+  - Visual indicators for uncertain colors (yellow border)
+  - Confidence percentage displayed on each sticker
+  - Click-to-select interface for manual correction
+  - Color picker with all 6 Rubik's cube colors
+  - Warning banner when uncertain colors detected
+  - Three action buttons: Retry Scan, Cancel, Confirm
+  
+### Acceptance Criteria Met
+- ✅ Detect uncertain colors (confidence scoring system implemented)
+- ✅ Allow manual correction (click sticker + select color UI)
+- ✅ Retry scan option (Retry button calls on_retry callback)
+
+### Tests
+- 6 unit tests in src/components/scan_correction.rs (all passing)
+- 12 integration tests in tests/scan_correction_tests.rs (all passing)
+- 10 integration tests in tests/color_confidence_tests.rs (all passing)
+- Total: 28 tests covering scan correction functionality
+- All 417 library unit tests passing ✅
+
+### Test Coverage
+- Uncertain color detection at various confidence levels
+- Confidence threshold boundaries (0.6 for uncertain, 0.8 for reliable)
+- Manual correction workflow
+- All cube sizes (2x2 to 4x4)
+- Mixed confidence scenarios
+- Boundary confidence values
+- Color extraction from results
+
+### Files Modified/Created
+- src/camera/color_detect.rs (added ColorDetectionResult, confidence scoring)
+- src/camera/mod.rs (updated exports)
+- src/components/scan_correction.rs (NEW - full scan correction UI)
+- src/components/mod.rs (updated to export scan_correction module)
+- tests/scan_correction_tests.rs (NEW - 12 integration tests)
+- tests/color_confidence_tests.rs (NEW - 10 integration tests)
+- prd.json: Updated R4.7 implemented=true, tests_passing=true
+- prd.json: Updated summary: 56/60 complete (93.33%)
+- progress.txt: This entry
+
+### Implementation Details
+
+**Confidence Scoring Algorithm**:
+The confidence score is calculated from color detection votes:
+1. **Coverage**: Percentage of sampled pixels that detected the winning color (70% weight)
+2. **Dominance**: Margin between winner and runner-up (30% weight)
+3. Final confidence = 0.7 * coverage + 0.3 * dominance, clamped to [0.0, 1.0]
+
+**UI Features**:
+- Stickers display confidence as percentage (e.g., "95%")
+- Color-coded confidence: Green (>= 80%), Orange (60-80%), Yellow (< 60%)
+- Uncertain stickers have yellow warning border
+- Click any sticker to select it for correction
+- Color picker appears when sticker selected
+- Real-time preview of corrections
+
+**User Workflow**:
+1. Scan completes with confidence scores for each sticker
+2. System detects X uncertain colors and shows warning
+3. User can:
+   - Click uncertain stickers to correct them
+   - Retry entire scan if too many errors
+   - Confirm if satisfied with detection
+4. Corrected colors saved and passed to parent component
+
+### Git Status
+- Branch: feat/r4-7-scan-error-recovery
+- Ready to commit and push
+
+### Updated Stats
+- Requirements complete: 56/60 (93.33%)
+- R4 (Camera scanning): 7/7 complete (100%) ✅
+- Only 4 requirements remaining: R5.3-R5.5 (4x4+ solving), R7.5-R7.6 (mobile builds)
+
+### Next Steps
+- Commit and push R4.7 work
+- Create PR and merge to main
+- All camera scanning features (R4.x) now complete! 🎉
+- Next incomplete requirements:
+  - R5.3: 4x4+ reduction method - centers
+  - R5.4: 4x4+ reduction method - edges
+  - R5.5: 4x4+ parity handling
+  - R7.5: Android build
+  - R7.6: iOS build
+
