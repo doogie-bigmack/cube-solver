@@ -10,3 +10,4 @@ pub mod input;
 pub mod renderer;
 pub mod solver;
 pub mod state;
+pub mod tutorial;
