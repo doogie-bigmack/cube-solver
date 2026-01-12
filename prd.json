@@ -641,10 +641,11 @@
           "Left and right cases",
           "Practice mode"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/tutorial/lessons/f2l_edges.rs"
+          "src/tutorial/lessons/f2l_edges.rs",
+          "tests/second_layer_lesson_tests.rs"
         ]
       },
       "R6.6": {
@@ -868,8 +869,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 40,
-    "tests_passing": 40,
-    "completion_percentage": 66.67
+    "implemented": 41,
+    "tests_passing": 41,
+    "completion_percentage": 68.33
   }
 }
