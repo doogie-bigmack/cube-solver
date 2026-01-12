@@ -4007,3 +4007,110 @@ R4.1 is now COMPLETE. Webcam access functionality implemented with cross-platfor
 - Work on R4.2: Face alignment guide overlay
 - Continue with remaining R4.x camera scanning requirements
 
+
+---
+
+## 2026-01-12 - R4.2 Face Alignment Guide Overlay - COMPLETE
+
+### Status
+R4.2 is now COMPLETE. Enhanced camera scanner with NxN grid overlay and visual alignment guides.
+
+### Completed Features
+- Enhanced face alignment guide overlay in CameraScanner component
+- Support for any NxN cube size (2x2 to 20x20) via configurable cube_size prop
+- Visual corner markers with green borders for alignment guidance
+- Dynamic grid overlay with proper cell division based on cube size
+- Center indicator dot for odd-sized cubes (3x3, 5x5, 7x7, etc.)
+- Alignment instruction label showing "Align NxN Cube Face Here"
+- Green color scheme (#22c55e) for high visibility
+- Box shadow and glow effects for better visual prominence
+- Non-interactive overlay (pointer-events: none) to not block camera feed
+- All acceptance criteria met:
+  ✅ Show 3x3 grid overlay (or NxN) - fully configurable cube size
+  ✅ Guide user to align cube face - corner markers and center indicator
+  ✅ Clear visual indicators - green borders, shadows, labeled overlay
+
+### Technical Implementation
+1. **Enhanced CameraScannerProps**:
+   - Added cube_size prop (default: 3, range: 2-20)
+   - Maintains backward compatibility with existing code
+
+2. **Visual Design**:
+   - Corner markers: 30px L-shaped borders at all four corners
+   - Grid overlay: NxN cells with green borders (rgba(34, 197, 94))
+   - Center indicator: 8px circular dot for odd-sized cubes
+   - Alignment label: Positioned 40px above grid with rounded pill design
+   - Glow effect: Box shadow with 20px blur for visibility
+   - Responsive sizing: 60% of camera feed dimensions
+
+3. **Grid Layout**:
+   - CSS Grid with repeat(N, 1fr) for columns and rows
+   - Individual cell borders for clear sticker separation
+   - Semi-transparent backgrounds for better overlay effect
+   - Rounded corners (8px border-radius) for modern appearance
+
+### Tests
+- 6 unit tests in src/components/camera_scanner.rs (all passing)
+- 20 integration tests in tests/camera_scanner_tests.rs (all passing)
+- Total: 26 tests covering face alignment overlay functionality
+- Tests cover:
+  - test_scan_001-004: Grid cell counts for 2x2, 3x3, 4x4, 5x5
+  - test_scan_005: Corner markers present (4 corners)
+  - test_scan_006: Center indicator for odd-sized cubes
+  - test_scan_007: No center indicator for even-sized cubes
+  - test_scan_008-009: Grid positioning and dimensions
+  - test_scan_010: Alignment label content
+  - test_scan_011-013: Visual styling (borders, shadows, colors)
+  - test_scan_014: Large cube sizes supported (up to 20x20)
+  - test_scan_015: Non-interactive overlay
+  - test_scan_016-020: UI details (positioning, corners, effects, dimensions)
+
+### Files Modified/Created
+- src/components/camera_scanner.rs (enhanced with new overlay UI)
+  - Added cube_size prop to CameraScannerProps
+  - Replaced basic grid with enhanced overlay system
+  - Added corner markers, center indicator, and alignment label
+  - Added Debug derive to CameraState for testing
+  - Added 6 unit tests for grid calculations
+  - Fixed unused variable warnings
+- tests/camera_scanner_tests.rs (NEW - 20 integration tests)
+- prd.json: Updated R4.2 implemented=true, tests_passing=true
+- prd.json: Updated summary: implemented=50, tests_passing=50, completion_percentage=83.33
+- progress.txt: This entry
+
+### Git Status
+- Branch: feat/r4-2-face-alignment-guide
+- Ready to commit and push
+
+### Build Status
+- Library compiles successfully ✅
+- All tests passing (6 unit + 20 integration) ✅
+- Docker container rebuilt successfully ✅
+- Web application served on http://localhost:8080 ✅
+
+### Updated Stats
+- Requirements complete: 50/60 (83.33%)
+- R4 (Camera Scanning): 2/7 complete (R4.1, R4.2)
+- Remaining R4 tasks: R4.3-R4.7 (color detection, calibration, workflow, error handling)
+
+### Implementation Notes
+The face alignment overlay provides clear visual guidance for users to properly position their cube:
+- **Corner markers** help users align the edges of the cube face
+- **Grid overlay** shows exactly where each sticker should be positioned
+- **Center indicator** (for odd cubes) helps center the cube
+- **Alignment label** provides clear textual instruction
+- **High contrast green** ensures visibility in various lighting conditions
+- **Semi-transparent** allows camera feed to show through for positioning
+
+The overlay is completely independent of the camera backend, making it work seamlessly across:
+- Web (via browser MediaDevices API)
+- Native desktop (via nokhwa library)
+- Mobile platforms
+
+### Next Steps
+- Commit and push R4.2 work
+- Create PR and merge to main
+- Work on next R4 requirement:
+  - R4.3 (HSV color detection) - core scanning logic
+  - R4.4 (Color calibration) - improve detection accuracy
+  - R4.5 (Scan workflow) - complete 6-face scanning process
