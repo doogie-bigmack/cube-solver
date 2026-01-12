@@ -548,11 +548,13 @@
           "Step forward one move",
           "Step backward one move"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/components/playback_controls.rs"
-        ]
+          "src/components/solution_player.rs",
+          "tests/solution_playback_tests.rs"
+        ],
+        "notes": "Step forward/backward controls implemented. Pause/resume already working from R5.7. All 14 integration tests passing."
       },
       "R5.9": {
         "description": "Move explanation text",
@@ -841,8 +843,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 13,
-    "tests_passing": 13,
-    "completion_percentage": 21.67
+    "implemented": 14,
+    "tests_passing": 14,
+    "completion_percentage": 23.33
   }
 }

@@ -896,3 +896,75 @@ The SolutionPlayer component is fully functional with all UI controls and data s
   - R4.1 (Camera capture) - new feature
   - R7.3/R7.4 (Windows/Linux builds)
 
+---
+
+## 2026-01-11 - R5.8 Pause/Resume/Step Controls - COMPLETE
+
+### Status
+R5.8 is now COMPLETE. Step forward and step backward controls fully implemented and tested.
+
+### Completed Features
+- Added step forward button - advances one move in the solution
+- Added step backward button - goes back one move by rebuilding cube state
+- Step forward correctly applies next move from solution
+- Step backward reconstructs cube state from beginning up to previous move
+- Buttons properly disabled at boundaries (step back disabled at move 0, step forward disabled at end)
+- State transitions work correctly (Completed → Paused when stepping back from end)
+- All acceptance criteria met:
+  ✅ Pause playback (already implemented in R5.7)
+  ✅ Resume from pause (already implemented in R5.7)
+  ✅ Step forward one move (NEW - implemented)
+  ✅ Step backward one move (NEW - implemented)
+
+### Technical Implementation
+1. **SolutionPlayer Component Updates (src/components/solution_player.rs)**:
+   - Added `step_forward` handler that applies next move and advances position
+   - Added `step_backward` handler that rebuilds cube state from scratch
+   - Changed `all_moves` to use_signal for shared closure access
+   - Added two new UI buttons with purple styling (◄ Step Back / Step Forward ►)
+   - Proper button disable states based on current position
+   - Auto-completion when stepping forward to last move
+
+2. **Test Suite (tests/solution_playback_tests.rs)**:
+   - Added 4 new integration tests for R5.8:
+     - test_step_forward_applies_moves
+     - test_step_backward_reconstructs_state
+     - test_playback_pause_resume
+     - test_step_controls_with_solution
+   - All 14 tests passing (10 existing + 4 new)
+
+### Tests
+- All 255 library unit tests passing ✅
+- All 14 solution playback integration tests passing ✅
+- Desktop build successful (release binary: 6.1MB) ✅
+- UI buttons added and functional in component ✅
+
+### Files Modified/Created
+- src/components/solution_player.rs (added step forward/backward logic and UI buttons)
+- tests/solution_playback_tests.rs (added 4 new tests)
+- prd.json: Updated R5.8 implemented=true, tests_passing=true
+- prd.json: Updated summary: 14/60 complete (23.33%)
+- progress.txt: This entry
+
+### Git Status
+- Branch: feat/r5-8-playback-controls
+- Ready to commit and push
+
+### Known Issues
+- WASM build still broken due to getrandom 0.2.17 dependency conflict (pre-existing issue from R5.7)
+- Desktop build works perfectly
+- Web deployment requires fixing getrandom dependency resolution
+
+### Updated Stats
+- Requirements complete: 14/60 (23.33%)
+- R5 (Solving algorithms): 5/9 complete (R5.1, R5.2, R5.6, R5.7, R5.8)
+
+### Next Steps
+- Commit and push R5.8 work
+- Create PR and merge to main
+- Fix WASM getrandom issue (affects R7.1 web deployment)
+- Work on next incomplete requirement:
+  - R5.9 (Move explanation text) - builds on playback work
+  - R7.3/R7.4 (Windows/Linux builds) - extends cross-platform support
+  - R4.1 (Camera capture) - new major feature
+
