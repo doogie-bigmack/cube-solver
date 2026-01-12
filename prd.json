@@ -750,8 +750,8 @@
           "Works on macOS 12+",
           "App Store ready (optional)"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "Dioxus.toml"
         ]
@@ -841,8 +841,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 28,
-    "tests_passing": 28,
-    "completion_percentage": 46.67
+    "implemented": 29,
+    "tests_passing": 29,
+    "completion_percentage": 48.33
   }
 }
