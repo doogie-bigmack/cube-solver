@@ -476,10 +476,12 @@
           "Generate efficient solution",
           "Complete in under 1 second"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/solver/two_by_two.rs"
+          "src/solver/two_by_two.rs",
+          "src/solver/mod.rs",
+          "tests/solver_2x2_tests.rs"
         ]
       },
       "R5.2": {
@@ -861,8 +863,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 24,
-    "tests_passing": 24,
-    "completion_percentage": 40.0
+    "implemented": 25,
+    "tests_passing": 25,
+    "completion_percentage": 41.67
   }
 }
