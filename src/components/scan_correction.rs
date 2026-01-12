@@ -7,7 +7,7 @@
 
 use dioxus::prelude::*;
 use crate::cube::Color;
-use crate::camera::ColorDetectionResult;
+use crate::camera::color_detect::ColorDetectionResult;
 
 /// Position of a sticker in the grid
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
