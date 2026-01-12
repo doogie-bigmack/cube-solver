@@ -238,14 +238,14 @@ fn render_sticker(
              background: {}; border: 4px solid #3182ce; border-radius: 3px; \
              cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; \
              transform: scale(1.1); box-shadow: 0 0 10px rgba(49, 130, 206, 0.6); \
-             z-index: 10;",
+             z-index: 10; touch-action: manipulation;",
             left, top, layout.sticker_size, layout.sticker_size, color_css
         )
     } else {
         format!(
             "position: absolute; left: {}px; top: {}px; width: {}px; height: {}px; \
              background: {}; border: 1px solid #2d3748; border-radius: 3px; \
-             cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;",
+             cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; touch-action: manipulation;",
             left, top, layout.sticker_size, layout.sticker_size, color_css
         )
     };

@@ -101,7 +101,7 @@ fn render_color_button(
             "width: {}px; height: {}px; background: {}; border-radius: 8px; \
              cursor: pointer; transition: all 0.2s; \
              border: 4px solid #3182ce; box-shadow: 0 0 12px rgba(49, 130, 206, 0.6); \
-             transform: scale(1.1); position: relative; z-index: 10;",
+             transform: scale(1.1); position: relative; z-index: 10; touch-action: manipulation;",
             button_size, button_size, color_css
         )
     } else {
@@ -115,7 +115,7 @@ fn render_color_button(
         format!(
             "width: {}px; height: {}px; background: {}; border-radius: 8px; \
              cursor: pointer; transition: all 0.2s; {} \
-             box-shadow: 0 2px 4px rgba(0,0,0,0.1);",
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1); touch-action: manipulation;",
             button_size, button_size, color_css, border
         )
     };

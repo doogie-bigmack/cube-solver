@@ -188,7 +188,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
                 button {
                     class: "btn btn-play",
-                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 4px;",
+                    style: "padding: 12px 20px; min-height: 44px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 4px; touch-action: manipulation;",
                     onclick: play,
                     disabled: state == PlaybackState::Playing,
                     if state == PlaybackState::Paused { "Resume" } else { "Play" }
@@ -196,7 +196,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
                 button {
                     class: "btn btn-pause",
-                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #FF9800; color: white; border: none; border-radius: 4px;",
+                    style: "padding: 12px 20px; min-height: 44px; font-size: 16px; cursor: pointer; background: #FF9800; color: white; border: none; border-radius: 4px; touch-action: manipulation;",
                     onclick: pause,
                     disabled: state != PlaybackState::Playing,
                     "Pause"
@@ -204,7 +204,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
                 button {
                     class: "btn btn-stop",
-                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px;",
+                    style: "padding: 12px 20px; min-height: 44px; font-size: 16px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px; touch-action: manipulation;",
                     onclick: stop,
                     disabled: state == PlaybackState::Stopped,
                     "Stop"
@@ -212,7 +212,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
                 button {
                     class: "btn btn-step-back",
-                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px;",
+                    style: "padding: 12px 20px; min-height: 44px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px; touch-action: manipulation;",
                     onclick: step_backward,
                     disabled: current == 0,
                     "◄ Step Back"
@@ -220,7 +220,7 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
 
                 button {
                     class: "btn btn-step-forward",
-                    style: "padding: 10px 20px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px;",
+                    style: "padding: 12px 20px; min-height: 44px; font-size: 16px; cursor: pointer; background: #9C27B0; color: white; border: none; border-radius: 4px; touch-action: manipulation;",
                     onclick: step_forward,
                     disabled: current >= total_moves,
                     "Step Forward ►"
@@ -241,9 +241,9 @@ pub fn SolutionPlayer(props: SolutionPlayerProps) -> Element {
                         button {
                             class: if *speed.read() == speed_option { "btn-speed active" } else { "btn-speed" },
                             style: if *speed.read() == speed_option {
-                                "padding: 8px 16px; cursor: pointer; background: #2196F3; color: white; border: 2px solid #1976D2; border-radius: 4px;"
+                                "padding: 12px 16px; min-height: 44px; cursor: pointer; background: #2196F3; color: white; border: 2px solid #1976D2; border-radius: 4px; touch-action: manipulation;"
                             } else {
-                                "padding: 8px 16px; cursor: pointer; background: white; color: #333; border: 2px solid #ddd; border-radius: 4px;"
+                                "padding: 12px 16px; min-height: 44px; cursor: pointer; background: white; color: #333; border: 2px solid #ddd; border-radius: 4px; touch-action: manipulation;"
                             },
                             onclick: move |_| change_speed(speed_option),
                             "{speed_option.label()}"
