@@ -4114,3 +4114,102 @@ The overlay is completely independent of the camera backend, making it work seam
   - R4.3 (HSV color detection) - core scanning logic
   - R4.4 (Color calibration) - improve detection accuracy
   - R4.5 (Scan workflow) - complete 6-face scanning process
+
+---
+
+## 2026-01-12 - R4.3 HSV Color Detection Algorithm - COMPLETE
+
+### Status
+R4.3 fully implemented with comprehensive HSV-based color detection for Rubik's cube scanning.
+
+### Features Implemented
+- RGB to HSV color space conversion
+- Color detection for all 6 Rubik's cube colors (White, Yellow, Red, Orange, Blue, Green)
+- Configurable color detection thresholds
+- Grid-based color detection for NxN cube faces (2x2, 3x3, etc.)
+- Majority voting for robust color detection with noise
+- Filtering of shadows and ambiguous colors
+- 90%+ accuracy in good lighting conditions
+
+### Acceptance Criteria Met
+- ✅ Convert RGB to HSV (rgb_to_hsv function implemented and tested)
+- ✅ Classify pixels into 6 colors (detect_color function with configurable thresholds)
+- ✅ Handle color variations (lighting variations, brightness, saturation)
+- ✅ 90%+ accuracy in good lighting (100% accuracy on standard colors, 90%+ with variations)
+
+### Tests
+- 16 unit tests in src/camera/color_detect.rs (all passing)
+- 19 integration tests in tests/color_detection_tests.rs (all passing)
+- Total: 35 tests covering color detection functionality
+- All acceptance criteria verified through tests
+
+### Test Coverage
+Unit tests cover:
+- test_rgb_to_hsv_red/green/blue: Primary color conversion ✅
+- test_rgb_to_hsv_white/black: Achromatic conversion ✅
+- test_detect_white/yellow/red/orange/blue/green: All 6 cube colors ✅
+- test_detect_black_returns_none: Shadow filtering ✅
+- test_detect_gray_returns_none: Ambiguous color filtering ✅
+- test_majority_vote_*: Voting algorithm ✅
+
+Integration tests cover:
+- RGB to HSV conversion for primary, secondary, and achromatic colors
+- Detection of all 6 standard Rubik's cube colors
+- Detection of color variations (different lighting, hue shifts)
+- Lighting variation handling (bright and dim)
+- Shadow and ambiguous color filtering
+- 2x2 and 3x3 grid detection
+- Grid detection with noise using majority vote
+- 90%+ accuracy tests with 18 color variations
+
+### Files Modified/Created
+- src/camera/color_detect.rs (NEW - 480+ lines with full implementation + 16 tests)
+  - HSV and RGB structs
+  - rgb_to_hsv() conversion function
+  - ColorDetectionConfig with configurable thresholds
+  - detect_color() for single pixel classification
+  - detect_colors_in_grid() for NxN face scanning
+  - majority_vote() helper for robustness
+- src/camera/mod.rs (updated to export color_detect module)
+- tests/color_detection_tests.rs (NEW - 19 comprehensive integration tests)
+
+### Git Status
+- Branch: feat/r4-3-hsv-color-detection
+- Ready to commit and push
+
+### Updated Files
+- prd.json: Updated R4.3 implemented=true, tests_passing=true
+- prd.json: Updated summary: 51/60 complete (85%)
+- progress.txt: This entry
+
+### Implementation Details
+
+The HSV color detection algorithm uses a two-step approach:
+
+1. **RGB to HSV Conversion**:
+   - Converts 8-bit RGB (0-255) to HSV color space
+   - Hue: 0-360 degrees
+   - Saturation: 0-1 (color intensity)
+   - Value: 0-1 (brightness)
+
+2. **Color Classification**:
+   - White: High value, low saturation
+   - Yellow: Hue 45-70°, high value
+   - Red: Hue 345-15° (wraps around 0°)
+   - Orange: Hue 15-45°
+   - Blue: Hue 200-240°
+   - Green: Hue 100-160°
+
+3. **Robustness Features**:
+   - Filters very dark pixels (shadows)
+   - Filters low-saturation pixels (gray/ambiguous)
+   - Majority voting in grid detection
+   - Configurable thresholds for adaptation
+
+The algorithm achieves 100% accuracy on standard Rubik's cube colors and maintains 90%+ accuracy with lighting and hue variations.
+
+### Next Steps
+- Commit and push R4.3 work
+- Create PR and merge to main
+- Work on R4.4: Color calibration mode
+- Work on R4.5: Scan all 6 faces workflow
