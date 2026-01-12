@@ -723,10 +723,12 @@
           "Track practice stats",
           "Persist to local storage"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/state/progress.rs"
+          "src/state/progress.rs",
+          "src/state/mod.rs",
+          "tests/progress_tests.rs"
         ]
       },
       "R6.12": {
@@ -872,8 +874,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 45,
-    "tests_passing": 45,
-    "completion_percentage": 75.00
+    "implemented": 46,
+    "tests_passing": 46,
+    "completion_percentage": 76.67
   }
 }
