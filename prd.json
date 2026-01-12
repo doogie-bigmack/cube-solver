@@ -148,8 +148,8 @@
           "Handle resize events",
           "Works on web (WebGPU) and native"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/wgpu_context.rs"
         ]
@@ -163,8 +163,8 @@
           "Proper normals for lighting",
           "Gap between stickers"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/cube_mesh.rs"
         ]
@@ -177,8 +177,8 @@
           "Constrain to reasonable angles",
           "Touch support for mobile"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/camera.rs"
         ]
@@ -191,8 +191,8 @@
           "Min/max zoom limits",
           "Smooth zoom animation"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/camera.rs"
         ]
@@ -205,8 +205,8 @@
           "Configurable duration",
           "Queue multiple animations"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/animations.rs"
         ]
@@ -219,8 +219,8 @@
           "Consistent gap between stickers",
           "Black cube body visible between stickers"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/renderer/cube_mesh.rs"
         ]
@@ -838,8 +838,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 19,
-    "tests_passing": 19,
-    "completion_percentage": 33.93
+    "implemented": 25,
+    "tests_passing": 25,
+    "completion_percentage": 44.64
   }
 }
