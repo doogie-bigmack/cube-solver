@@ -9,6 +9,7 @@ pub mod cube_controls;
 pub mod cube_input;
 pub mod move_display;
 pub mod solution_player;
+pub mod ui_kit;
 pub mod validation_feedback;
 
 pub use color_picker::ColorPicker;
@@ -16,3 +17,6 @@ pub use cube_3d::Cube3D;
 pub use cube_controls::CubeControls;
 pub use cube_input::{CubeInput, StickerPosition};
 pub use solution_player::SolutionPlayer;
+pub use ui_kit::{
+    ButtonSize, ButtonTheme, KidBadge, KidButton, KidCard, KidIconButton, KidProgress,
+};
