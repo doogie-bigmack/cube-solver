@@ -415,6 +415,27 @@ pub fn apply_adaptive_thresholds(
     config
 }
 
+/// Color detection result with confidence score
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ColorDetectionResult {
+    /// Detected color
+    pub color: Color,
+    /// Confidence score (0.0-1.0, higher is more confident)
+    pub confidence: f32,
+}
+
+impl ColorDetectionResult {
+    /// Check if this detection is uncertain (low confidence)
+    pub fn is_uncertain(&self) -> bool {
+        self.confidence < 0.6
+    }
+
+    /// Check if this detection is reliable (high confidence)
+    pub fn is_reliable(&self) -> bool {
+        self.confidence >= 0.8
+    }
+}
+
 /// Detect colors in a grid of pixels (for cube face scanning)
 ///
 /// # Arguments
@@ -481,6 +502,72 @@ pub fn detect_colors_in_grid(
     Some(grid)
 }
 
+/// Detect colors in a grid with confidence scores
+///
+/// # Arguments
+/// * `pixels` - RGB pixel data (row-major, width * height * 3 bytes)
+/// * `width` - Image width in pixels
+/// * `height` - Image height in pixels
+/// * `grid_size` - NxN grid size (e.g., 3 for 3x3 cube)
+/// * `config` - Detection configuration
+///
+/// # Returns
+/// NxN grid of color detection results with confidence scores, or None if detection fails
+pub fn detect_colors_in_grid_with_confidence(
+    pixels: &[u8],
+    width: u32,
+    height: u32,
+    grid_size: usize,
+    config: &ColorDetectionConfig,
+) -> Option<Vec<Vec<ColorDetectionResult>>> {
+    if pixels.len() != (width * height * 3) as usize {
+        return None;
+    }
+
+    let cell_width = width / grid_size as u32;
+    let cell_height = height / grid_size as u32;
+
+    let mut grid = Vec::new();
+
+    for row in 0..grid_size {
+        let mut grid_row = Vec::new();
+
+        for col in 0..grid_size {
+            // Sample from center of each grid cell
+            let center_x = (col as u32 * cell_width) + cell_width / 2;
+            let center_y = (row as u32 * cell_height) + cell_height / 2;
+
+            // Sample a small region around center for more robust detection
+            let mut color_votes: Vec<Color> = Vec::new();
+
+            for dy in -2..=2 {
+                for dx in -2..=2 {
+                    let x = (center_x as i32 + dx).clamp(0, width as i32 - 1) as u32;
+                    let y = (center_y as i32 + dy).clamp(0, height as i32 - 1) as u32;
+
+                    let idx = ((y * width + x) * 3) as usize;
+                    let rgb = RGB::new(pixels[idx], pixels[idx + 1], pixels[idx + 2]);
+
+                    if let Some(color) = detect_color(rgb, config) {
+                        color_votes.push(color);
+                    }
+                }
+            }
+
+            // Calculate confidence based on vote consistency
+            if let Some((color, confidence)) = majority_vote_with_confidence(&color_votes) {
+                grid_row.push(ColorDetectionResult { color, confidence });
+            } else {
+                return None; // Failed to detect color in this cell
+            }
+        }
+
+        grid.push(grid_row);
+    }
+
+    Some(grid)
+}
+
 /// Detect colors in a grid with adaptive thresholds based on lighting
 ///
 /// # Arguments
@@ -525,6 +612,51 @@ fn majority_vote(colors: &[Color]) -> Option<Color> {
     counts.into_iter()
         .max_by_key(|(_, count)| *count)
         .map(|(color, _)| color)
+}
+
+/// Find the most common color with a confidence score
+///
+/// Confidence is based on:
+/// - How many votes the winning color got (coverage)
+/// - How dominant the winning color is compared to others (consistency)
+///
+/// Returns (Color, confidence) where confidence is 0.0-1.0
+fn majority_vote_with_confidence(colors: &[Color]) -> Option<(Color, f32)> {
+    if colors.is_empty() {
+        return None;
+    }
+
+    let total_votes = colors.len();
+    let mut counts = std::collections::HashMap::new();
+
+    for color in colors {
+        *counts.entry(*color).or_insert(0) += 1;
+    }
+
+    // Find winner and runner-up
+    let mut sorted_counts: Vec<_> = counts.into_iter().collect();
+    sorted_counts.sort_by_key(|(_, count)| std::cmp::Reverse(*count));
+
+    let (winner_color, winner_count) = sorted_counts[0];
+
+    // Calculate confidence based on:
+    // 1. Coverage: what % of samples detected this color
+    let coverage = winner_count as f32 / total_votes as f32;
+
+    // 2. Dominance: how much more votes than runner-up
+    let dominance = if sorted_counts.len() > 1 {
+        let runner_up_count = sorted_counts[1].1;
+        let margin = (winner_count - runner_up_count) as f32 / total_votes as f32;
+        margin.clamp(0.0, 1.0)
+    } else {
+        1.0 // Only one color detected, maximum dominance
+    };
+
+    // Final confidence is weighted average
+    // Coverage is more important (70%) than dominance (30%)
+    let confidence = (0.7 * coverage + 0.3 * dominance).clamp(0.0, 1.0);
+
+    Some((winner_color, confidence))
 }
 
 #[cfg(test)]
