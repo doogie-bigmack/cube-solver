@@ -55,7 +55,7 @@ impl SolutionStep {
 }
 
 /// A complete solution with step-by-step breakdown
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Solution {
     /// The steps that make up the solution
     pub steps: Vec<SolutionStep>,
