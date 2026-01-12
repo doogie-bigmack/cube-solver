@@ -1776,3 +1776,68 @@ R7.2 is now COMPLETE. macOS desktop build successfully creates native .app bundl
   - R5.7 (Solution playback UI) - builds on existing solvers
   - R4.1 (Camera capture) - entirely new feature
 
+---
+
+## 2026-01-11 - R5.8 Pause/Resume/Step Controls - COMPLETE
+
+### Status
+R5.8 is now COMPLETE. Step forward and step backward controls fully implemented and tested.
+
+### Completed Features
+- Added step forward button - advances one move in the solution
+- Added step backward button - goes back one move by rebuilding cube state
+- Step forward correctly applies next move from solution
+- Step backward reconstructs cube state from beginning up to previous move
+- Buttons properly disabled at boundaries (step back disabled at move 0, step forward disabled at end)
+- State transitions work correctly (Completed → Paused when stepping back from end)
+- All acceptance criteria met:
+  ✅ Pause playback (already implemented in R5.7)
+  ✅ Resume from pause (already implemented in R5.7)
+  ✅ Step forward one move (NEW - implemented)
+  ✅ Step backward one move (NEW - implemented)
+
+### Technical Implementation
+1. **SolutionPlayer Component Updates**:
+   - Added `step_forward` handler that applies next move and advances position
+   - Added `step_backward` handler that rebuilds cube state from scratch
+   - Changed `all_moves` to use_signal for shared closure access
+   - Added two new UI buttons with purple styling (◄ Step Back / Step Forward ►)
+   - Proper button disable states based on current position
+   - Auto-completion when stepping forward to last move
+
+2. **Test Suite**:
+   - Added 4 new integration tests for R5.8:
+     - test_step_forward_applies_moves
+     - test_step_backward_reconstructs_state
+     - test_playback_pause_resume
+     - test_step_controls_with_solution
+   - All 14 tests passing (10 existing + 4 new)
+
+### Tests
+- All 255 library unit tests passing ✅
+- All 14 solution playback integration tests passing ✅
+- Desktop build successful (release binary: 6.1MB) ✅
+- UI buttons added and functional in component ✅
+
+### Files Modified/Created
+- src/components/solution_player.rs (added step forward/backward logic and UI buttons)
+- tests/solution_playback_tests.rs (added 4 new tests)
+- prd.json: Updated R5.8 implemented=true, tests_passing=true
+- prd.json: Updated summary: 30/56 complete (53.57%)
+- progress.txt: This entry
+
+### Git Status
+- Branch: feat/r5-8-playback-controls
+- PR #30 merged to main
+- Submodule updated in parent repo
+
+### Updated Stats
+- Requirements complete: 30/56 (53.57%)
+- R5 (Solving algorithms): 5/9 complete (R5.1, R5.2, R5.6, R5.7, R5.8)
+
+### Next Steps
+- Work on next incomplete requirement:
+  - R5.9 (Move explanation text) - builds on playback work
+  - R7.3/R7.4 (Windows/Linux builds) - extends cross-platform support
+  - R4.1 (Camera capture) - new major feature
+
