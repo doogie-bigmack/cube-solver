@@ -9,6 +9,7 @@
 //! Solutions may not be optimal but are reasonably efficient.
 
 use crate::cube::{Cube, Move};
+use crate::solver::solution::{Solution, SolutionStep};
 use std::time::Instant;
 
 /// Solution for a 2x2 cube
@@ -18,17 +19,41 @@ pub struct Solution2x2 {
     pub moves: Vec<Move>,
     /// Time taken to find the solution (in milliseconds)
     pub time_ms: u128,
+    /// Step-by-step breakdown of the solution
+    pub steps: Vec<SolutionStep>,
 }
 
 impl Solution2x2 {
     /// Create a new solution
     pub fn new(moves: Vec<Move>, time_ms: u128) -> Self {
-        Self { moves, time_ms }
+        // Create a single step for backward compatibility
+        let steps = if moves.is_empty() {
+            vec![SolutionStep::new("Cube is already solved", vec![])]
+        } else {
+            vec![SolutionStep::new("Solve 2x2 cube", moves.clone())]
+        };
+
+        Self { moves, time_ms, steps }
+    }
+
+    /// Create a new solution with custom steps
+    pub fn with_steps(moves: Vec<Move>, time_ms: u128, steps: Vec<SolutionStep>) -> Self {
+        Self { moves, time_ms, steps }
     }
 
     /// Get the number of moves in the solution
     pub fn move_count(&self) -> usize {
         self.moves.len()
+    }
+
+    /// Get the number of steps in the solution
+    pub fn step_count(&self) -> usize {
+        self.steps.len()
+    }
+
+    /// Convert to generic Solution type
+    pub fn to_solution(&self) -> Solution {
+        Solution::with_method(self.steps.clone(), self.time_ms, "2x2 Depth-Limited Search")
     }
 }
 
