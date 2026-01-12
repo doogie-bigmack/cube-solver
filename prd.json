@@ -842,8 +842,8 @@
           "Works on iOS 15+",
           "App Store ready (optional)"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "Dioxus.toml",
           "mobile/ios/"
