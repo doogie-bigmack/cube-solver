@@ -58,7 +58,7 @@ pub fn solve_2x2(cube: &Cube) -> Result<Solution2x2, String> {
         return Err("Cube must be size 2 for 2x2 solver".to_string());
     }
 
-    if !cube.validate().is_ok() {
+    if cube.validate().is_err() {
         return Err("Cube is not in a valid state".to_string());
     }
 
