@@ -4,6 +4,7 @@
 //! Solver & Tutorial application.
 
 pub mod camera_scanner;
+//pub mod color_calibration;  // TODO: Fix circular dependency with camera module
 pub mod color_picker;
 pub mod cube_3d;
 pub mod cube_controls;
@@ -14,6 +15,7 @@ pub mod ui_kit;
 pub mod validation_feedback;
 
 pub use camera_scanner::{CameraScanner, CameraState};
+//pub use color_calibration::ColorCalibration;  // TODO: Fix circular dependency
 pub use color_picker::ColorPicker;
 pub use cube_3d::Cube3D;
 pub use cube_controls::CubeControls;
