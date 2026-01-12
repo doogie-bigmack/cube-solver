@@ -14,7 +14,12 @@ wgpu = { version = "22.1", optional = true }
 winit = { version = "0.30", optional = true }
 pollster = { version = "0.3", optional = true }
 glam = "0.30.10"
-getrandom = { version = "0.2", features = ["js"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+getrandom = "0.3"
 
 [features]
 default = ["desktop_3d"]

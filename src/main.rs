@@ -5,12 +5,14 @@
 mod components;
 mod cube;
 mod renderer;
+mod solver;
 mod state;
 
-use components::{ColorPicker, Cube3D, CubeControls, CubeInput, StickerPosition};
+use components::{ColorPicker, Cube3D, CubeControls, CubeInput, SolutionPlayer, StickerPosition};
 use cube::{Color, Cube, FaceName};
 use dioxus::prelude::*;
 use renderer::WgpuContextConfig;
+use solver::{solve_2x2, solve_3x3, Solution};
 use state::History;
 
 fn main() {
@@ -32,6 +34,9 @@ fn App() -> Element {
     // Track selected sticker and color
     let mut selected_sticker = use_signal(|| None::<StickerPosition>);
     let mut selected_color = use_signal(|| None::<Color>);
+
+    // Track solution
+    let mut solution = use_signal(|| None::<Solution>);
 
     rsx! {
         div {
@@ -157,6 +162,55 @@ fn App() -> Element {
                                 if hist.redo().is_some() {
                                     history.set(hist);
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // Solver section
+                section {
+                    style: "background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; width: 100%;",
+                    h2 {
+                        style: "color: #2d3748; font-size: 1.5rem; margin-bottom: 1rem; text-align: center;",
+                        "Solve the Cube"
+                    }
+
+                    p {
+                        style: "color: #718096; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;",
+                        "Click 'Solve' to find a solution for the current cube state"
+                    }
+
+                    div {
+                        style: "display: flex; justify-content: center; margin-bottom: 1.5rem;",
+                        button {
+                            style: "padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; background: #667eea; color: white; border: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;",
+                            onclick: move |_| {
+                                let current_cube = history().current().clone();
+                                let cube_size = current_cube.size();
+
+                                let sol = if cube_size == 2 {
+                                    solve_2x2(&current_cube).ok().map(|s| s.to_solution())
+                                } else if cube_size == 3 {
+                                    solve_3x3(&current_cube).ok().map(|s| s.to_solution())
+                                } else {
+                                    None
+                                };
+
+                                solution.set(sol);
+                            },
+                            "Solve Cube"
+                        }
+                    }
+
+                    if let Some(sol) = solution() {
+                        SolutionPlayer {
+                            solution: sol,
+                        }
+                    } else {
+                        div {
+                            style: "text-align: center; color: #718096; padding: 2rem;",
+                            p {
+                                "Click 'Solve Cube' to generate a solution"
                             }
                         }
                     }
