@@ -782,10 +782,13 @@
           "Works on Ubuntu 22.04+",
           "AppImage or Flatpak (optional)"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "Dioxus.toml"
+          "Dioxus.toml",
+          "build-linux.sh",
+          "LINUX_BUILD.md",
+          "tests/linux_build_tests.rs"
         ]
       },
       "R7.5": {
@@ -849,8 +852,8 @@
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 34,
-    "tests_passing": 34,
-    "completion_percentage": 60.71
+    "implemented": 35,
+    "tests_passing": 35,
+    "completion_percentage": 62.5
   }
 }
