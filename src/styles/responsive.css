@@ -107,11 +107,6 @@ button:active {
     background: #4a5aba;
 }
 
-button:disabled {
-    background: #cbd5e0;
-    cursor: not-allowed;
-}
-
 /* Cube containers */
 .cube-3d-container,
 .cube-input-container {
@@ -294,6 +289,8 @@ button:disabled {
     button {
         font-size: 16px; /* Minimum readable size - requirement #4 */
         padding: 10px 16px;
+        width: 100%; /* Full width on very small screens for easier touch */
+        max-width: 280px;
     }
 
     /* Stack elements vertically on small screens */
@@ -323,7 +320,46 @@ button:disabled {
     button {
         font-size: 14px; /* Absolute minimum for readability */
         padding: 8px 12px;
+        width: 100%;
     }
+}
+
+/* Utility classes for responsive layout */
+.container-fluid {
+    width: 100%;
+    max-width: 100vw;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.text-responsive {
+    font-size: clamp(0.875rem, 2vw, 1.25rem); /* Fluid typography */
+}
+
+.heading-responsive {
+    font-size: clamp(1.25rem, 4vw, 2.5rem); /* Fluid heading */
+}
+
+/* Ensure images and media are responsive */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent text overflow */
+.text-overflow-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-wrap {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 /* Cube-specific responsive adjustments */
@@ -417,22 +453,6 @@ button:disabled {
     .grid-responsive {
         grid-template-columns: 1fr;
     }
-}
-
-/* Ensure images and media are responsive */
-img,
-video,
-canvas,
-svg {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Prevent text overflow */
-.text-wrap {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
 }
 
 /* Accessibility: ensure focus states are visible */

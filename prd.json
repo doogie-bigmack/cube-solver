@@ -837,18 +837,20 @@
           "No horizontal scrolling",
           "Readable text at all sizes"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/styles/responsive.css"
+          "assets/main.css",
+          "src/styles/responsive.css",
+          "tests/responsive_layout_tests.rs"
         ]
       }
     }
   },
   "summary": {
     "total_requirements": 56,
-    "implemented": 33,
-    "tests_passing": 33,
-    "completion_percentage": 58.93
+    "implemented": 34,
+    "tests_passing": 34,
+    "completion_percentage": 60.71
   }
 }

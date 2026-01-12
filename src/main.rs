@@ -41,32 +41,25 @@ fn App() -> Element {
     rsx! {
         div {
             class: "app-container",
-            style: "min-height: 100vh; display: flex; flex-direction: column; background: #f7fafc;",
+            style: "min-height: 100vh; display: flex; flex-direction: column; background: #f7fafc; width: 100%; max-width: 100vw; overflow-x: hidden;",
 
             header {
-                style: "padding: 2rem; text-align: center; background: white; border-bottom: 1px solid #e2e8f0;",
                 h1 {
-                    style: "color: #667eea; font-size: 2rem; margin-bottom: 0.5rem;",
                     "Rubik's Cube Solver & Tutorial"
                 }
                 p {
-                    style: "color: #4a5568; font-size: 1rem;",
                     "Educational cube solver for 2x2 to 20x20 cubes"
                 }
             }
 
             main {
-                style: "flex: 1; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 3rem;",
 
                 // Section: 3D View
                 section {
-                    style: "background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);",
                     h2 {
-                        style: "color: #2d3748; font-size: 1.5rem; margin-bottom: 1rem; text-align: center;",
                         "3D Cube View"
                     }
                     p {
-                        style: "color: #718096; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;",
                         "Changes in the 2D view are reflected in real-time"
                     }
                     Cube3D {
@@ -78,15 +71,12 @@ fn App() -> Element {
 
                 // Section: 2D Unfolded View with Color Picker
                 section {
-                    style: "background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);",
                     h2 {
-                        style: "color: #2d3748; font-size: 1.5rem; margin-bottom: 1rem; text-align: center;",
                         "2D Unfolded Cube View"
                     }
 
                     // Instructions
                     p {
-                        style: "color: #718096; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;",
                         "Click a sticker to select it, then click a color to apply"
                     }
 
@@ -169,21 +159,18 @@ fn App() -> Element {
 
                 // Solver section
                 section {
-                    style: "background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; width: 100%;",
+                    style: "max-width: 800px; width: 100%;",
                     h2 {
-                        style: "color: #2d3748; font-size: 1.5rem; margin-bottom: 1rem; text-align: center;",
                         "Solve the Cube"
                     }
 
                     p {
-                        style: "color: #718096; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;",
                         "Click 'Solve' to find a solution for the current cube state"
                     }
 
                     div {
                         style: "display: flex; justify-content: center; margin-bottom: 1.5rem;",
                         button {
-                            style: "padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; background: #667eea; color: white; border: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;",
                             onclick: move |_| {
                                 let current_cube = history().current().clone();
                                 let cube_size = current_cube.size();
@@ -218,13 +205,13 @@ fn App() -> Element {
 
                 // Status section
                 div {
-                    style: "text-align: center; background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px;",
+                    class: "status-section",
                     h3 {
                         style: "color: #2d3748; font-size: 1.2rem; margin-bottom: 1rem;",
                         "Implementation Status"
                     }
                     p {
-                        style: "color: #718096; font-size: 0.9rem; margin: 0.5rem 0;",
+                        style: "color: #718096; font-size: 0.9rem; margin: 0.5rem 0; word-wrap: break-word;",
                         "✓ WGPU rendering context ready"
                     }
                     p {
