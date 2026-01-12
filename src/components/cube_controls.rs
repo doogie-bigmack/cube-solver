@@ -57,15 +57,15 @@ pub fn CubeControls(props: CubeControlsProps) -> Element {
 
     // Compute styles based on can_undo/can_redo
     let undo_style = if props.can_undo {
-        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1;"
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1; touch-action: manipulation;"
     } else {
-        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6;"
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6; touch-action: manipulation;"
     };
 
     let redo_style = if props.can_redo {
-        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1;"
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1; touch-action: manipulation;"
     } else {
-        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6;"
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6; touch-action: manipulation;"
     };
 
     rsx! {
@@ -123,6 +123,7 @@ pub fn CubeControls(props: CubeControlsProps) -> Element {
                     cursor: pointer;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                     transition: all 0.3s ease;
+                    touch-action: manipulation;
                 ",
                 onclick: move |_| {
                     show_confirm_dialog.set(true);
@@ -224,6 +225,7 @@ pub fn CubeControls(props: CubeControlsProps) -> Element {
                                     font-weight: 600;
                                     cursor: pointer;
                                     transition: all 0.2s ease;
+                                    touch-action: manipulation;
                                 ",
                                 onclick: move |_| {
                                     show_confirm_dialog.set(false);
@@ -248,6 +250,7 @@ pub fn CubeControls(props: CubeControlsProps) -> Element {
                                     cursor: pointer;
                                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                                     transition: all 0.2s ease;
+                                    touch-action: manipulation;
                                 ",
                                 onclick: move |_| {
                                     // Create new solved cube of the same size
