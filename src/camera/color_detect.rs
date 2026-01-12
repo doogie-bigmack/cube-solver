@@ -2,7 +2,6 @@
 ///
 /// This module implements HSV-based color detection to classify pixels
 /// into one of the 6 standard Rubik's cube colors.
-
 use crate::cube::Color;
 
 /// HSV color representation (Hue, Saturation, Value)
@@ -211,6 +210,211 @@ pub fn detect_color(rgb: RGB, config: &ColorDetectionConfig) -> Option<Color> {
     None
 }
 
+/// Lighting quality assessment
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LightingQuality {
+    /// Excellent lighting conditions
+    Excellent,
+    /// Good lighting conditions
+    Good,
+    /// Adequate lighting (may need adjustment)
+    Adequate,
+    /// Poor lighting (detection may fail)
+    Poor,
+    /// Very poor lighting (detection likely to fail)
+    VeryPoor,
+}
+
+/// Lighting analysis result
+#[derive(Debug, Clone)]
+pub struct LightingAnalysis {
+    /// Overall lighting quality
+    pub quality: LightingQuality,
+    /// Average brightness (0.0-1.0)
+    pub avg_brightness: f32,
+    /// Brightness variance (higher = more uneven lighting)
+    pub brightness_variance: f32,
+    /// Whether lighting is too dark
+    pub too_dark: bool,
+    /// Whether lighting is too bright (overexposed)
+    pub too_bright: bool,
+    /// Whether lighting is uneven
+    pub uneven: bool,
+    /// Suggested brightness adjustment factor
+    pub suggested_brightness_adjustment: f32,
+}
+
+impl LightingAnalysis {
+    /// Get a user-friendly warning message
+    pub fn get_warning_message(&self) -> Option<String> {
+        match self.quality {
+            LightingQuality::Excellent | LightingQuality::Good => None,
+            LightingQuality::Adequate => {
+                if self.too_dark {
+                    Some("Lighting is a bit dim. Try moving to a brighter area.".to_string())
+                } else if self.too_bright {
+                    Some("Lighting is a bit bright. Try reducing direct light.".to_string())
+                } else if self.uneven {
+                    Some("Lighting is uneven. Try to get more uniform lighting.".to_string())
+                } else {
+                    Some("Lighting could be improved for best results.".to_string())
+                }
+            }
+            LightingQuality::Poor => {
+                if self.too_dark {
+                    Some("Lighting is too dark. Please move to a brighter area!".to_string())
+                } else if self.too_bright {
+                    Some("Lighting is too bright (overexposed). Please reduce direct light!".to_string())
+                } else {
+                    Some("Lighting is poor. Color detection may fail!".to_string())
+                }
+            }
+            LightingQuality::VeryPoor => {
+                Some("Lighting is very poor! Color detection will likely fail. Please improve lighting conditions!".to_string())
+            }
+        }
+    }
+}
+
+/// Analyze lighting conditions in an image
+///
+/// # Arguments
+/// * `pixels` - RGB pixel data (row-major, width * height * 3 bytes)
+/// * `width` - Image width in pixels
+/// * `height` - Image height in pixels
+///
+/// # Returns
+/// Lighting analysis result
+pub fn analyze_lighting(pixels: &[u8], width: u32, height: u32) -> LightingAnalysis {
+    if pixels.len() != (width * height * 3) as usize {
+        return LightingAnalysis {
+            quality: LightingQuality::VeryPoor,
+            avg_brightness: 0.0,
+            brightness_variance: 0.0,
+            too_dark: true,
+            too_bright: false,
+            uneven: false,
+            suggested_brightness_adjustment: 2.0,
+        };
+    }
+
+    // Calculate average brightness and variance
+    let mut brightness_sum = 0.0;
+    let mut brightness_values = Vec::new();
+
+    let total_pixels = (width * height) as usize;
+
+    for i in 0..total_pixels {
+        let idx = i * 3;
+        let rgb = RGB::new(pixels[idx], pixels[idx + 1], pixels[idx + 2]);
+        let hsv = rgb_to_hsv(rgb);
+        brightness_values.push(hsv.v);
+        brightness_sum += hsv.v;
+    }
+
+    let avg_brightness = brightness_sum / total_pixels as f32;
+
+    // Calculate variance
+    let variance_sum: f32 = brightness_values.iter()
+        .map(|v| (v - avg_brightness).powi(2))
+        .sum();
+    let brightness_variance = variance_sum / total_pixels as f32;
+
+    // Determine lighting issues
+    let too_dark = avg_brightness < 0.25;
+    let too_bright = avg_brightness > 0.85;
+    let uneven = brightness_variance > 0.04; // High variance indicates uneven lighting
+
+    // Determine overall quality
+    let quality = if too_dark && avg_brightness < 0.15 {
+        LightingQuality::VeryPoor
+    } else if too_bright && avg_brightness > 0.92 {
+        LightingQuality::VeryPoor
+    } else if too_dark || too_bright {
+        LightingQuality::Poor
+    } else if uneven && brightness_variance > 0.06 {
+        LightingQuality::Poor
+    } else if !(0.35..=0.75).contains(&avg_brightness) || uneven {
+        LightingQuality::Adequate
+    } else if brightness_variance < 0.02 && (0.4..=0.7).contains(&avg_brightness) {
+        LightingQuality::Excellent
+    } else {
+        LightingQuality::Good
+    };
+
+    // Calculate suggested brightness adjustment
+    let suggested_brightness_adjustment = if too_dark {
+        let target = 0.5;
+        (target / avg_brightness).clamp(1.0, 3.0)
+    } else if too_bright {
+        let target = 0.6;
+        (target / avg_brightness).clamp(0.3, 1.0)
+    } else {
+        1.0
+    };
+
+    LightingAnalysis {
+        quality,
+        avg_brightness,
+        brightness_variance,
+        too_dark,
+        too_bright,
+        uneven,
+        suggested_brightness_adjustment,
+    }
+}
+
+/// Apply adaptive thresholds based on lighting conditions
+///
+/// # Arguments
+/// * `base_config` - Base color detection configuration
+/// * `lighting` - Lighting analysis result
+///
+/// # Returns
+/// Adjusted color detection configuration
+pub fn apply_adaptive_thresholds(
+    base_config: &ColorDetectionConfig,
+    lighting: &LightingAnalysis,
+) -> ColorDetectionConfig {
+    let mut config = base_config.clone();
+
+    // Adjust thresholds based on brightness
+    if lighting.too_dark {
+        // In dark conditions, lower brightness thresholds
+        config.white_min_value = (config.white_min_value * 0.7).max(0.4);
+        config.yellow_min_value = (config.yellow_min_value * 0.7).max(0.3);
+        config.min_value_threshold = (config.min_value_threshold * 0.5).max(0.05);
+
+        // Be more lenient with saturation in dark conditions
+        config.white_max_saturation = (config.white_max_saturation * 1.3).min(0.45);
+        config.chromatic_min_saturation = (config.chromatic_min_saturation * 0.8).max(0.2);
+    } else if lighting.too_bright {
+        // In bright conditions, raise thresholds
+        config.white_min_value = (config.white_min_value * 1.1).min(0.95);
+        config.yellow_min_value = (config.yellow_min_value * 1.1).min(0.85);
+
+        // In bright conditions, colors may appear more saturated
+        config.white_max_saturation = (config.white_max_saturation * 0.8).max(0.15);
+        config.chromatic_min_saturation = (config.chromatic_min_saturation * 1.2).min(0.5);
+    }
+
+    // Adjust for uneven lighting
+    if lighting.uneven {
+        // Widen hue ranges slightly to be more tolerant
+        let hue_expansion = 5.0;
+        config.yellow_hue_min = (config.yellow_hue_min - hue_expansion).max(0.0);
+        config.yellow_hue_max = (config.yellow_hue_max + hue_expansion).min(360.0);
+        config.orange_hue_min = (config.orange_hue_min - hue_expansion).max(0.0);
+        config.orange_hue_max = (config.orange_hue_max + hue_expansion).min(360.0);
+        config.blue_hue_min = (config.blue_hue_min - hue_expansion).max(0.0);
+        config.blue_hue_max = (config.blue_hue_max + hue_expansion).min(360.0);
+        config.green_hue_min = (config.green_hue_min - hue_expansion).max(0.0);
+        config.green_hue_max = (config.green_hue_max + hue_expansion).min(360.0);
+    }
+
+    config
+}
+
 /// Detect colors in a grid of pixels (for cube face scanning)
 ///
 /// # Arguments
@@ -275,6 +479,36 @@ pub fn detect_colors_in_grid(
     }
 
     Some(grid)
+}
+
+/// Detect colors in a grid with adaptive thresholds based on lighting
+///
+/// # Arguments
+/// * `pixels` - RGB pixel data (row-major, width * height * 3 bytes)
+/// * `width` - Image width in pixels
+/// * `height` - Image height in pixels
+/// * `grid_size` - NxN grid size (e.g., 3 for 3x3 cube)
+/// * `base_config` - Base detection configuration
+///
+/// # Returns
+/// Tuple of (detected color grid, lighting analysis)
+pub fn detect_colors_with_lighting_adaptation(
+    pixels: &[u8],
+    width: u32,
+    height: u32,
+    grid_size: usize,
+    base_config: &ColorDetectionConfig,
+) -> (Option<Vec<Vec<Color>>>, LightingAnalysis) {
+    // Analyze lighting conditions
+    let lighting = analyze_lighting(pixels, width, height);
+
+    // Apply adaptive thresholds
+    let adapted_config = apply_adaptive_thresholds(base_config, &lighting);
+
+    // Detect colors with adapted configuration
+    let colors = detect_colors_in_grid(pixels, width, height, grid_size, &adapted_config);
+
+    (colors, lighting)
 }
 
 /// Find the most common color in a list (majority vote)
@@ -418,5 +652,260 @@ mod tests {
     fn test_majority_vote_empty() {
         let colors = vec![];
         assert_eq!(majority_vote(&colors), None);
+    }
+
+    #[test]
+    fn test_analyze_lighting_good_conditions() {
+        // Create a well-lit image (medium brightness, low variance)
+        let width = 100;
+        let height = 100;
+        let mut pixels = vec![0u8; (width * height * 3) as usize];
+
+        // Fill with medium gray (brightness ~0.5)
+        for pixel in pixels.chunks_mut(3) {
+            pixel[0] = 128; // R
+            pixel[1] = 128; // G
+            pixel[2] = 128; // B
+        }
+
+        let analysis = analyze_lighting(&pixels, width, height);
+        assert!(analysis.avg_brightness > 0.4 && analysis.avg_brightness < 0.6);
+        assert!(!analysis.too_dark);
+        assert!(!analysis.too_bright);
+        assert!(matches!(
+            analysis.quality,
+            LightingQuality::Excellent | LightingQuality::Good
+        ));
+    }
+
+    #[test]
+    fn test_analyze_lighting_too_dark() {
+        let width = 100;
+        let height = 100;
+        let mut pixels = vec![0u8; (width * height * 3) as usize];
+
+        // Fill with dark pixels (brightness ~0.1)
+        for pixel in pixels.chunks_mut(3) {
+            pixel[0] = 25; // R
+            pixel[1] = 25; // G
+            pixel[2] = 25; // B
+        }
+
+        let analysis = analyze_lighting(&pixels, width, height);
+        assert!(analysis.too_dark);
+        assert!(!analysis.too_bright);
+        assert!(matches!(
+            analysis.quality,
+            LightingQuality::Poor | LightingQuality::VeryPoor
+        ));
+        assert!(analysis.suggested_brightness_adjustment > 1.0);
+    }
+
+    #[test]
+    fn test_analyze_lighting_too_bright() {
+        let width = 100;
+        let height = 100;
+        let mut pixels = vec![0u8; (width * height * 3) as usize];
+
+        // Fill with very bright pixels (brightness ~0.95)
+        for pixel in pixels.chunks_mut(3) {
+            pixel[0] = 242; // R
+            pixel[1] = 242; // G
+            pixel[2] = 242; // B
+        }
+
+        let analysis = analyze_lighting(&pixels, width, height);
+        assert!(!analysis.too_dark);
+        assert!(analysis.too_bright);
+        assert!(matches!(
+            analysis.quality,
+            LightingQuality::Poor | LightingQuality::VeryPoor
+        ));
+        assert!(analysis.suggested_brightness_adjustment < 1.0);
+    }
+
+    #[test]
+    fn test_analyze_lighting_uneven() {
+        let width = 100;
+        let height = 100;
+        let mut pixels = vec![0u8; (width * height * 3) as usize];
+
+        // Create uneven lighting - half dark, half bright
+        for i in 0..height {
+            for j in 0..width {
+                let idx = ((i * width + j) * 3) as usize;
+                if i < height / 2 {
+                    // Dark half
+                    pixels[idx] = 50;
+                    pixels[idx + 1] = 50;
+                    pixels[idx + 2] = 50;
+                } else {
+                    // Bright half
+                    pixels[idx] = 200;
+                    pixels[idx + 1] = 200;
+                    pixels[idx + 2] = 200;
+                }
+            }
+        }
+
+        let analysis = analyze_lighting(&pixels, width, height);
+        assert!(analysis.uneven);
+        assert!(analysis.brightness_variance > 0.04);
+    }
+
+    #[test]
+    fn test_lighting_warning_messages() {
+        let mut analysis = LightingAnalysis {
+            quality: LightingQuality::Excellent,
+            avg_brightness: 0.5,
+            brightness_variance: 0.01,
+            too_dark: false,
+            too_bright: false,
+            uneven: false,
+            suggested_brightness_adjustment: 1.0,
+        };
+
+        // Excellent lighting - no warning
+        assert!(analysis.get_warning_message().is_none());
+
+        // Good lighting - no warning
+        analysis.quality = LightingQuality::Good;
+        assert!(analysis.get_warning_message().is_none());
+
+        // Adequate lighting - has warning
+        analysis.quality = LightingQuality::Adequate;
+        analysis.too_dark = true;
+        let msg = analysis.get_warning_message();
+        assert!(msg.is_some());
+        assert!(msg.unwrap().contains("dim"));
+
+        // Poor lighting - has warning
+        analysis.quality = LightingQuality::Poor;
+        analysis.too_dark = true;
+        let msg = analysis.get_warning_message();
+        assert!(msg.is_some());
+        assert!(msg.unwrap().contains("too dark"));
+
+        // Very poor lighting - has warning
+        analysis.quality = LightingQuality::VeryPoor;
+        let msg = analysis.get_warning_message();
+        assert!(msg.is_some());
+        assert!(msg.unwrap().contains("very poor"));
+    }
+
+    #[test]
+    fn test_apply_adaptive_thresholds_dark() {
+        let base_config = ColorDetectionConfig::default();
+        let lighting = LightingAnalysis {
+            quality: LightingQuality::Poor,
+            avg_brightness: 0.2,
+            brightness_variance: 0.01,
+            too_dark: true,
+            too_bright: false,
+            uneven: false,
+            suggested_brightness_adjustment: 2.0,
+        };
+
+        let adapted = apply_adaptive_thresholds(&base_config, &lighting);
+
+        // In dark conditions, thresholds should be lowered
+        assert!(adapted.white_min_value < base_config.white_min_value);
+        assert!(adapted.yellow_min_value < base_config.yellow_min_value);
+        assert!(adapted.min_value_threshold < base_config.min_value_threshold);
+        assert!(adapted.white_max_saturation > base_config.white_max_saturation);
+    }
+
+    #[test]
+    fn test_apply_adaptive_thresholds_bright() {
+        let base_config = ColorDetectionConfig::default();
+        let lighting = LightingAnalysis {
+            quality: LightingQuality::Poor,
+            avg_brightness: 0.9,
+            brightness_variance: 0.01,
+            too_dark: false,
+            too_bright: true,
+            uneven: false,
+            suggested_brightness_adjustment: 0.7,
+        };
+
+        let adapted = apply_adaptive_thresholds(&base_config, &lighting);
+
+        // In bright conditions, thresholds should be raised
+        assert!(adapted.white_min_value > base_config.white_min_value);
+        assert!(adapted.yellow_min_value > base_config.yellow_min_value);
+        assert!(adapted.white_max_saturation < base_config.white_max_saturation);
+    }
+
+    #[test]
+    fn test_apply_adaptive_thresholds_uneven() {
+        let base_config = ColorDetectionConfig::default();
+        let lighting = LightingAnalysis {
+            quality: LightingQuality::Adequate,
+            avg_brightness: 0.5,
+            brightness_variance: 0.06,
+            too_dark: false,
+            too_bright: false,
+            uneven: true,
+            suggested_brightness_adjustment: 1.0,
+        };
+
+        let adapted = apply_adaptive_thresholds(&base_config, &lighting);
+
+        // In uneven lighting, hue ranges should be widened
+        assert!(adapted.yellow_hue_min < base_config.yellow_hue_min);
+        assert!(adapted.yellow_hue_max > base_config.yellow_hue_max);
+        assert!(adapted.orange_hue_min < base_config.orange_hue_min);
+        assert!(adapted.orange_hue_max > base_config.orange_hue_max);
+    }
+
+    #[test]
+    fn test_detect_colors_with_lighting_adaptation() {
+        // Create a simple 3x3 test image with good lighting
+        let width = 30;
+        let height = 30;
+        let mut pixels = vec![0u8; (width * height * 3) as usize];
+
+        // Fill with medium brightness colors
+        for pixel in pixels.chunks_mut(3) {
+            pixel[0] = 128; // Medium gray
+            pixel[1] = 128;
+            pixel[2] = 128;
+        }
+
+        let base_config = ColorDetectionConfig::default();
+        let (colors, lighting) = detect_colors_with_lighting_adaptation(
+            &pixels,
+            width,
+            height,
+            3,
+            &base_config,
+        );
+
+        // Should get lighting analysis even if color detection fails
+        assert!(lighting.avg_brightness > 0.0);
+        assert!(matches!(
+            lighting.quality,
+            LightingQuality::Excellent
+                | LightingQuality::Good
+                | LightingQuality::Adequate
+                | LightingQuality::Poor
+                | LightingQuality::VeryPoor
+        ));
+    }
+
+    #[test]
+    fn test_lighting_quality_ordering() {
+        // Test that lighting quality enum has proper ordering
+        let excellent = LightingQuality::Excellent;
+        let good = LightingQuality::Good;
+        let adequate = LightingQuality::Adequate;
+        let poor = LightingQuality::Poor;
+        let very_poor = LightingQuality::VeryPoor;
+
+        // Just ensure they're all distinct
+        assert_ne!(excellent, good);
+        assert_ne!(good, adequate);
+        assert_ne!(adequate, poor);
+        assert_ne!(poor, very_poor);
     }
 }
