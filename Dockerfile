@@ -6,14 +6,14 @@ FROM rust:1.92 as builder
 
 # Install wasm-pack and other dependencies
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-RUN cargo install dioxus-cli --version 0.6.3
+RUN cargo install dioxus-cli --version 0.7.2
 
 WORKDIR /app
 
 # Copy the project files
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml Cargo.lock Dioxus.toml ./
 COPY src ./src
-COPY tests ./tests
+COPY assets ./assets
 
 # Build the WASM application
 RUN dx build --release --platform web
@@ -22,7 +22,7 @@ RUN dx build --release --platform web
 FROM nginx:alpine
 
 # Copy the built WASM files from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/target/dx/rubiks-cube-solver/release/web/public /usr/share/nginx/html
 
 # Copy nginx configuration (if needed)
 # COPY nginx.conf /etc/nginx/nginx.conf
