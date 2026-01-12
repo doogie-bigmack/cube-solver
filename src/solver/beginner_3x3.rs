@@ -64,7 +64,7 @@ pub fn solve_3x3_beginner(cube: &Cube) -> Result<Solution3x3Beginner, String> {
         return Err("Cube must be size 3 for 3x3 solver".to_string());
     }
 
-    if !cube.validate().is_ok() {
+    if cube.validate().is_err() {
         return Err("Cube is not in a valid state".to_string());
     }
 

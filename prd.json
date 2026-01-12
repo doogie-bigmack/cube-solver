@@ -628,8 +628,8 @@
           "Insertion algorithms",
           "Practice mode"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
           "src/tutorial/lessons/f2l_corners.rs"
         ]
@@ -867,9 +867,9 @@
     }
   },
   "summary": {
-    "total_requirements": 56,
+    "total_requirements": 60,
     "implemented": 40,
     "tests_passing": 40,
-    "completion_percentage": 71.43
+    "completion_percentage": 66.67
   }
 }

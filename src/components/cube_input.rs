@@ -153,7 +153,7 @@ pub fn CubeInput(props: CubeInputProps) -> Element {
                 FaceName::B,
                 FaceName::D,
             ] {
-                {render_face(&cube, face_name, &layout, props.on_sticker_click.clone(), props.selected_sticker)}
+                {render_face(cube, face_name, &layout, props.on_sticker_click, props.selected_sticker)}
             }
         }
     }
@@ -203,7 +203,7 @@ fn render_face(
             // Stickers grid
             for row in 0..cube.size() {
                 for col in 0..cube.size() {
-                    {render_sticker(face, row, col, face_name, layout, on_sticker_click.clone(), selected_sticker)}
+                    {render_sticker(face, row, col, face_name, layout, on_sticker_click, selected_sticker)}
                 }
             }
         }
@@ -227,7 +227,7 @@ fn render_sticker(
     let top = row as f32 * (layout.sticker_size + layout.gap);
 
     // Check if this sticker is selected
-    let is_selected = selected_sticker.map_or(false, |sel| {
+    let is_selected = selected_sticker.is_some_and(|sel| {
         sel.face == face_name && sel.row == row && sel.col == col
     });
 

@@ -22,11 +22,11 @@ fn main() {
 #[component]
 fn App() -> Element {
     // Initialize WGPU config (will be used for 3D rendering when integrated)
-    let _wgpu_config = WgpuContextConfig::default();
+    let _wgpu_config = WgpuContextConfig;
 
     // Track viewport size (in real app, this would come from window resize events)
-    let mut viewport_width = use_signal(|| 800.0);
-    let mut viewport_height = use_signal(|| 600.0);
+    let viewport_width = use_signal(|| 800.0);
+    let viewport_height = use_signal(|| 600.0);
 
     // Create history for undo/redo functionality
     let mut history = use_signal(|| History::new(Cube::new(3)));
