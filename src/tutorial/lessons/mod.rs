@@ -10,6 +10,7 @@ pub mod f2l_edges;
 pub mod oll;
 pub mod pll;
 pub mod two_by_two;
+pub mod four_by_four;
 
 pub use notation::{LessonStep, NotationLesson};
 pub use colors::{ColorLessonStep, ColorPair, ColorQuizQuestion, ColorsLesson};
@@ -19,3 +20,4 @@ pub use f2l_edges::{SecondLayerLesson, SecondLayerLessonStep, EdgeCase, EdgePosi
 pub use oll::{OllLesson, OllLessonStep, OllCase, OllPattern, OllPracticeExercise};
 pub use pll::{PllLesson, PllLessonStep, PllCase, PllPattern, PllPracticeExercise};
 pub use two_by_two::{TwoByTwoLesson, TwoByTwoLessonStep, OrtegaCase, TwoByTwoPracticeExercise};
+pub use four_by_four::{FourByFourLesson, FourByFourLessonStep, FourByFourCase, FourByFourPracticeExercise};
