@@ -360,10 +360,14 @@
           "Redo undone change",
           "Undo/redo history stack"
         ],
-        "implemented": false,
-        "tests_passing": false,
+        "implemented": true,
+        "tests_passing": true,
         "files": [
-          "src/state/history.rs"
+          "src/state/history.rs",
+          "src/state/mod.rs",
+          "src/components/cube_controls.rs",
+          "src/main.rs",
+          "tests/history_integration_tests.rs"
         ]
       }
     },
@@ -857,8 +861,8 @@
   },
   "summary": {
     "total_requirements": 60,
-    "implemented": 23,
-    "tests_passing": 23,
-    "completion_percentage": 38.33
+    "implemented": 24,
+    "tests_passing": 24,
+    "completion_percentage": 40.0
   }
 }

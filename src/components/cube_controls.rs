@@ -12,6 +12,14 @@ pub struct CubeControlsProps {
     pub cube: Cube,
     /// Callback when cube is reset
     pub on_reset: EventHandler<Cube>,
+    /// Whether undo is available
+    pub can_undo: bool,
+    /// Whether redo is available
+    pub can_redo: bool,
+    /// Callback for undo
+    pub on_undo: EventHandler<()>,
+    /// Callback for redo
+    pub on_redo: EventHandler<()>,
 }
 
 /// CubeControls component provides controls for manipulating the cube.
@@ -47,10 +55,56 @@ pub fn CubeControls(props: CubeControlsProps) -> Element {
     let mut show_confirm_dialog = use_signal(|| false);
     let cube_size = props.cube.size();
 
+    // Compute styles based on can_undo/can_redo
+    let undo_style = if props.can_undo {
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1;"
+    } else {
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6;"
+    };
+
+    let redo_style = if props.can_redo {
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; opacity: 1;"
+    } else {
+        "min-width: 150px; min-height: 50px; padding: 1rem 2rem; background: #cbd5e0; color: #a0aec0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: not-allowed; box-shadow: none; transition: all 0.3s ease; opacity: 0.6;"
+    };
+
     rsx! {
         div {
             class: "cube-controls",
             style: "display: flex; flex-direction: column; gap: 1rem; padding: 1rem;",
+
+            // Undo/Redo buttons row
+            div {
+                style: "display: flex; gap: 1rem; justify-content: center;",
+
+                // Undo button
+                button {
+                    r#type: "button",
+                    class: "undo-button",
+                    disabled: !props.can_undo,
+                    style: "{undo_style}",
+                    onclick: move |_| {
+                        if props.can_undo {
+                            props.on_undo.call(());
+                        }
+                    },
+                    "↶ Undo"
+                }
+
+                // Redo button
+                button {
+                    r#type: "button",
+                    class: "redo-button",
+                    disabled: !props.can_redo,
+                    style: "{redo_style}",
+                    onclick: move |_| {
+                        if props.can_redo {
+                            props.on_redo.call(());
+                        }
+                    },
+                    "↷ Redo"
+                }
+            }
 
             // Reset button
             button {

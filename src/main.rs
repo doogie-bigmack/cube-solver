@@ -5,11 +5,13 @@
 mod components;
 mod cube;
 mod renderer;
+mod state;
 
 use components::{ColorPicker, Cube3D, CubeControls, CubeInput, StickerPosition};
 use cube::{Color, Cube, FaceName};
 use dioxus::prelude::*;
 use renderer::WgpuContextConfig;
+use state::History;
 
 fn main() {
     dioxus::launch(App);
@@ -24,8 +26,8 @@ fn App() -> Element {
     let mut viewport_width = use_signal(|| 800.0);
     let mut viewport_height = use_signal(|| 600.0);
 
-    // Create a cube for the 2D input view
-    let mut cube = use_signal(|| Cube::new(3));
+    // Create history for undo/redo functionality
+    let mut history = use_signal(|| History::new(Cube::new(3)));
 
     // Track selected sticker and color
     let mut selected_sticker = use_signal(|| None::<StickerPosition>);
@@ -63,7 +65,7 @@ fn App() -> Element {
                         "Changes in the 2D view are reflected in real-time"
                     }
                     Cube3D {
-                        cube: cube(),
+                        cube: history().current().clone(),
                         viewport_width: viewport_width(),
                         viewport_height: viewport_height(),
                     }
@@ -94,9 +96,12 @@ fn App() -> Element {
 
                                 // If a sticker is selected, apply the color
                                 if let Some(sticker) = selected_sticker() {
-                                    let mut current_cube = cube();
+                                    let mut current_cube = history().current().clone();
                                     current_cube.set_sticker(sticker.face, sticker.row, sticker.col, color);
-                                    cube.set(current_cube);
+                                    // Push new state to history
+                                    let mut hist = history();
+                                    hist.push(current_cube);
+                                    history.set(hist);
                                 }
                             },
                         }
@@ -106,7 +111,7 @@ fn App() -> Element {
                     div {
                         style: "display: flex; justify-content: center;",
                         CubeInput {
-                            cube: cube(),
+                            cube: history().current().clone(),
                             selected_sticker: selected_sticker(),
                             on_sticker_click: move |(face, row, col): (FaceName, usize, usize)| {
                                 // Update selected sticker
@@ -114,9 +119,12 @@ fn App() -> Element {
 
                                 // If a color is already selected, apply it
                                 if let Some(color) = selected_color() {
-                                    let mut current_cube = cube();
+                                    let mut current_cube = history().current().clone();
                                     current_cube.set_sticker(face, row, col, color);
-                                    cube.set(current_cube);
+                                    // Push new state to history
+                                    let mut hist = history();
+                                    hist.push(current_cube);
+                                    history.set(hist);
                                 }
                             },
                         }
@@ -126,12 +134,29 @@ fn App() -> Element {
                     div {
                         style: "display: flex; justify-content: center; margin-top: 2rem;",
                         CubeControls {
-                            cube: cube(),
+                            cube: history().current().clone(),
                             on_reset: move |new_cube: Cube| {
-                                cube.set(new_cube);
+                                // Reset history with the new cube
+                                let mut hist = history();
+                                hist.reset(new_cube);
+                                history.set(hist);
                                 // Clear selections when resetting
                                 selected_sticker.set(None);
                                 selected_color.set(None);
+                            },
+                            can_undo: history().can_undo(),
+                            can_redo: history().can_redo(),
+                            on_undo: move || {
+                                let mut hist = history();
+                                if hist.undo().is_some() {
+                                    history.set(hist);
+                                }
+                            },
+                            on_redo: move || {
+                                let mut hist = history();
+                                if hist.redo().is_some() {
+                                    history.set(hist);
+                                }
                             }
                         }
                     }
